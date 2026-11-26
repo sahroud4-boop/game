@@ -69,7 +69,7 @@ footer{text-align:center;color:#c9a77a;font-size:10px;margin:16px 0 4px}
 
 <section id="home" class="screen active">
  <div class="panel" style="text-align:center;margin-top:14px"><div style="font-size:40px">🎲 ⚔️ 🎲</div><div>به میدان حمله تاسی خوش آمدی!</div><div class="small">نبرد آفلاین با چهار ربات</div></div>
- <div class="menu"><button onclick="startGame()">🎲 شروع نبرد آفلاین</button><button onclick="show('ranking')">رتبه‌بندی</button><button onclick="show('camp')">اردوگاه</button><button onclick="show('help')">راهنما</button><button onclick="alert('برای خروج، صفحه را ببندید.')">خروج</button></div>
+ <div class="menu"><button onclick="startGame()">🎲 شروع نبرد آفلاین</button><button onclick="show('ranking')">رتبه‌بندی</button><button onclick="show('camp')">اردوگاه</button><button onclick="show('help')">راهنما</button><button class="secondary" onclick="exportGameBackup()">⬇️ پشتیبان‌گیری از پیشرفت بازی</button><button class="secondary" onclick="document.getElementById('backupFile').click()">⬆️ بازیابی پیشرفت از فایل پشتیبان</button><button onclick="alert('برای خروج، صفحه را ببندید.')">خروج</button></div>
  <div class="small" style="text-align:center;margin:22px 0 6px;line-height:1.9;color:#c9a77a">علی نوری<br>جهت شرکت در مسابقه ی فرهنگی و هنری</div>
 </section>
 
@@ -128,7 +128,7 @@ footer{text-align:center;color:#c9a77a;font-size:10px;margin:16px 0 4px}
  <div id="finishPanel"></div>
  <button class="secondary" onclick="exitMatch()">بازگشت به منو</button>
  </div></section>
-<footer>حمله تاسی | نسخه آفلاین چهارهوشی</footer></main>
+<footer>حمله تاسی | نسخه دوبعدی آفلاین چهارهوشی · ۲.۱</footer><input id="backupFile" type="file" accept="application/json,.json" hidden onchange="importGameBackup(event)"></main>
 <div class="die-info-modal" id="dieInfoModal" onclick="if(event.target===this)closeDieInfo()"><div class="die-info-card"><div class="row"><h2 id="dieInfoTitle">اطلاعات تاس</h2><button class="secondary" onclick="closeDieInfo()">بستن ✕</button></div><div id="dieInfoBody"></div><div id="dieInfoActions"></div></div></div>
 <div class="die-info-modal" id="chestRewardModal" onclick="if(event.target===this)closeChestRewards()"><div class="die-info-card"><div class="row"><h2 id="chestRewardTitle">جایزه صندوق</h2><button class="secondary" onclick="closeChestRewards()">بستن ✕</button></div><p style="text-align:center">این تاس‌ها به مجموعه‌ات اضافه شدند!</p><div id="chestRewardBody" class="chest-reward-grid"></div><button onclick="closeChestRewards()" style="width:100%;margin-top:12px">عالیه!</button></div></div>
 <script>
@@ -642,6 +642,34 @@ function showChestRewards(title,codes){const modal=document.getElementById('ches
 function closeChestRewards(){document.getElementById('chestRewardModal').classList.remove('open');}
 function openChest(){if(!chestQueue.length)return;const now=Date.now();let index=chestQueue.findIndex(c=>c.readyAt<=now);if(index<0){index=chestQueue.reduce((best,c,i)=>c.readyAt<chestQueue[best].readyAt?i:best,0);const chest=chestQueue[index],cost=chest.type==='dice'?1:2;if(coins<cost)return alert('برای بازکردن فوری این صندوق به '+fa(cost)+' سکه نیاز داری.');if(!confirm('برای بازکردن فوری '+(chest.type==='dice'?'صندوق تاسی، ۱ سکه':'صندوق پادشاهی، ۲ سکه')+' پرداخت شود؟'))return;coins-=cost;}const chest=chestQueue.splice(index,1)[0],rewards=[];if(chest.type==='dice'){owned.normal=(owned.normal||0)+1;rewards.push('normal');const roll=Math.random();const prize=roll<0.5?randomOf(catalog.special.map(x=>x[0])):randomOf(catalog.potion.map(x=>x[0]));owned[prize]=(owned[prize]||0)+1;rewards.push(prize);}else{for(let i=0;i<3;i++){owned.normal=(owned.normal||0)+1;rewards.push('normal');}for(let i=0;i<2;i++){const prize=Math.random()<0.5?randomOf(catalog.special.map(x=>x[0])):randomOf(catalog.potion.map(x=>x[0]));owned[prize]=(owned[prize]||0)+1;rewards.push(prize);}const king=randomOf(catalog.king.map(x=>x[0]));owned[king]=(owned[king]||0)+1;rewards.push(king);}chestPending=chestQueue.length>0;syncInventory();saveGameState();refresh();showChestRewards(chest.type==='dice'?'🎲 جایزه صندوق تاسی':'👑 جایزه صندوق پادشاهی',rewards);}
 
+function exportGameBackup(){
+ saveGameState();
+ const raw=localStorage.getItem('hamleTasiSave');
+ if(!raw){alert('اطلاعات ذخیره‌شده‌ای برای پشتیبان‌گیری پیدا نشد.');return;}
+ const payload={app:'HamleTasi',version:'2.1',createdAt:new Date().toISOString(),data:JSON.parse(raw)};
+ const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+ const url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download='HamleTasi_Backup_'+new Date().toISOString().slice(0,10)+'.json';
+ document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function importGameBackup(event){
+ const file=event.target.files&&event.target.files[0];if(!file)return;
+ const reader=new FileReader();
+ reader.onload=()=>{
+  try{
+   const parsed=JSON.parse(String(reader.result||''));
+   const data=parsed&&parsed.app==='HamleTasi'?parsed.data:parsed;
+   if(!data||typeof data!=='object'||Array.isArray(data)||!('owned' in data)||!('coins' in data))throw new Error('invalid');
+   if(!confirm('با بازیابی این فایل، پیشرفت فعلی با اطلاعات داخل فایل جایگزین می‌شود. ادامه می‌دهی؟'))return;
+   localStorage.setItem('hamleTasiSave',JSON.stringify(data));
+   loadGameState();applyTimedCoins();syncInventory();saveGameState();refresh();
+   alert('پیشرفت بازی با موفقیت بازیابی شد.');
+  }catch(e){alert('فایل پشتیبان معتبر نیست یا قابل خواندن نیست.');}
+  finally{event.target.value='';}
+ };
+ reader.onerror=()=>{alert('خواندن فایل ناموفق بود.');event.target.value='';};
+ reader.readAsText(file);
+}
 window.addEventListener('beforeunload',e=>{if(match&&!match.over){e.preventDefault();e.returnValue='';}});
 window.addEventListener('pagehide',()=>{if(match&&!match.over)finishMatch(1);});
 loadGameState();applyTimedCoins();syncInventory();saveGameState();
