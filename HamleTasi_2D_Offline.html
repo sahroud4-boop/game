@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#4b2d19"><title>حمله تاسی | آفلاین</title>
+<style>
+:root{--wood:#59371f;--cream:#f3dfb4;--gold:#e9bd58;--green:#3f9a55;--red:#c94a43}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(#80603e,#2e2017);color:var(--cream);font-family:Tahoma,Arial,sans-serif;min-height:100vh}.app{max-width:520px;min-height:100vh;margin:auto;padding:12px;background:linear-gradient(135deg,#49301f,#211811);box-shadow:0 0 30px #0008}
+header{text-align:center;padding:12px 8px 16px;border:4px ridge #b17a3d;border-radius:14px;background:repeating-linear-gradient(90deg,#684326,#684326 18px,#754b2b 19px,#754b2b 37px);box-shadow:inset 0 0 18px #1a0d06}
+h1{margin:0;color:#ffe3a0;font-size:clamp(28px,8vw,42px);text-shadow:2px 3px #281509}.sub{font-size:12px;color:#f0d3a0;margin-top:5px}
+.screen{display:none;padding-top:14px}.screen.active{display:block}.panel{background:linear-gradient(145deg,#7b4c2b,#4d2d19);border:3px ridge #c08a4b;border-radius:13px;padding:13px;box-shadow:inset 0 0 12px #291507,0 5px 12px #0005}
+.menu{display:grid;gap:11px;margin-top:16px}
+button{font:bold 16px Tahoma;cursor:pointer;color:#3a210f;border:3px ridge #e1b56e;border-radius:10px;padding:12px;background:linear-gradient(#ffe4a4,#c98d43);box-shadow:0 4px 0 #39200f}button:active{transform:translateY(2px);box-shadow:0 2px 0 #39200f}button:disabled{opacity:.45;cursor:not-allowed}
+button.secondary{font-size:13px;padding:9px;background:linear-gradient(#e9d4a7,#b58b55)}h2{margin:0 0 11px;color:#ffe3a0;font-size:20px}h3{margin:13px 0 7px;color:#ffdfa0;font-size:15px}
+.row{display:flex;justify-content:space-between;gap:8px;align-items:center;margin:7px 0}.small{font-size:12px;color:#ead3a7;line-height:1.9}.coins{color:#ffd66d;font-weight:bold}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.tabs button{flex:1;min-width:30%;font-size:12px;padding:9px 5px}
+.item{padding:10px 2px;border-bottom:1px solid #c18b4b;display:flex;justify-content:space-between;gap:8px;align-items:center}.item:last-child{border:0}.item-info{flex:1;min-width:0}.item-title{font-size:13px;font-weight:bold;color:#fff0cb}.item-desc{font-size:10px;line-height:1.7;color:#ead3a7;margin-top:3px}.item-actions{display:flex;gap:5px;align-items:center}.item-actions button{font-size:11px;padding:7px 8px;white-space:nowrap}
+.badge{display:inline-block;border-radius:20px;background:#2e1b10;color:#ffdf91;padding:3px 7px;font-size:10px;margin:2px}.statgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.stat{background:#321e12;border:1px solid #a87540;border-radius:8px;padding:9px;text-align:center;font-size:11px}.stat b{display:block;color:#ffdc7b;font-size:19px;margin-top:3px}
+.helpnav{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.helpnav button{font-size:11px;padding:8px;flex:1}.help-section{background:#321e12;border:1px solid #a87540;border-radius:9px;padding:10px;margin:8px 0}.help-section p{font-size:12px;line-height:1.9;margin:5px 0}.help-section ul{padding-right:19px;margin:5px 0}.help-section li{font-size:12px;line-height:1.9;margin:3px 0}
+.board{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:340px;margin:12px auto;padding:8px;background:#1c130e;border:4px ridge #b88b51;border-radius:8px;aspect-ratio:1}.cell{background:linear-gradient(145deg,#e8d7b0,#bca27a);border:2px solid #59432c;border-radius:5px;display:flex;align-items:center;justify-content:center;min-width:0}.die{width:78%;aspect-ratio:1;border-radius:18%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:25px;color:white;text-shadow:1px 2px #3338;border:3px solid #fff8;box-shadow:inset -4px -5px 7px #0005,0 3px 4px #0006}
+.die-enter{animation:dieEntry .62s cubic-bezier(.2,.9,.3,1.2) both;transform-origin:center}
+@keyframes dieEntry{0%{opacity:0;transform:translateY(-32px) scale(.18) rotate(-135deg);filter:brightness(1.8)}58%{opacity:1;transform:translateY(4px) scale(1.12) rotate(8deg);filter:brightness(1.2)}82%{transform:translateY(-2px) scale(.96) rotate(-2deg);filter:brightness(1.05)}100%{opacity:1;transform:translateY(0) scale(1) rotate(0);filter:none}}
+@media(prefers-reduced-motion:reduce){.die-enter{animation-duration:.01ms}}.die.me{outline:3px solid #35bd59;outline-offset:2px}.die.enemy{outline:3px solid #e54842;outline-offset:2px}
+/* رنگ بدنه هر تاس مطابق نوع خودش؛ حلقه سبز/قرمز مالکیت را نشان می‌دهد */
+.die.unit-normal{background:linear-gradient(145deg,#fff0cf,#c9b38c);color:#49351f;text-shadow:1px 1px #fff8}
+.die.unit-king_green{background:linear-gradient(145deg,#d9f5ad,#8eae52);color:#263817}
+.die.unit-king_color{background:conic-gradient(#e84b4b,#f4d64b,#58bd68,#4e9fe8,#a76be0,#e84b4b)}
+.die.unit-king_black{background:linear-gradient(145deg,#555,#080808)}
+.die.unit-king_yellow{background:linear-gradient(145deg,#fff27a,#d6a900);color:#493600}
+.die.unit-king_white{background:linear-gradient(145deg,#fff,#c9d0d7);color:#35404b}
+.die.unit-king_blue{background:linear-gradient(145deg,#4b9fff,#063d9c)}
+.die.unit-king_red{background:linear-gradient(145deg,#ff7777,#a50019)}
+.die.unit-sp_cream{background:linear-gradient(145deg,#fff0d2,#d5c19b);color:#49351f}
+.die.unit-sp_purple{background:linear-gradient(145deg,#d89aff,#7023a6)}
+.die.unit-sp_brown{background:linear-gradient(145deg,#b77b48,#633719)}
+.die.unit-sp_orange{background:linear-gradient(145deg,#ffc06b,#d65a08)}
+.die.unit-sp_stripe{background:repeating-linear-gradient(135deg,#168b43 0 12px,#168b43 12px 18px,#287bd0 18px 22px,#c93636 22px 26px)}
+.die.unit-sp_gray{background:linear-gradient(145deg,#d8dce0,#737d86);color:#26313a}
+.die.unit-sp_darkgreen{background:linear-gradient(145deg,#087b35,#003d20)}
+.die.unit-sp_pink{background:linear-gradient(145deg,#ffb9df,#d94d9b)}
+.die.unit-sp_maroon{background:linear-gradient(145deg,#a52c55,#4e0925)}
+.die.unit-sp_jade{background:linear-gradient(145deg,#70d9bd,#087b69)}
+.die.unit-pot_green{background:linear-gradient(145deg,#9aff82,#168d37)}
+.die.unit-pot_red{background:linear-gradient(145deg,#ff7777,#b20d21)}
+.die.unit-pot_yellow{background:linear-gradient(145deg,#fff17b,#d5a900);color:#493600}
+.die.unit-pot_blue{background:linear-gradient(145deg,#83dfff,#0879c7)}
+.die.king{border:3px solid #f4d36d}.die.potion{width:58%;border-radius:50%;font-size:18px}
+.hand{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin:10px 0}.hand .die{width:42px}.info{display:flex;justify-content:space-between;font-size:12px;background:#29190f;padding:8px;border-radius:8px;margin:7px 0}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
+.selectbox{width:100%;padding:11px;border-radius:8px;border:2px solid #c08a4b;background:#f3dfb4;color:#392312;font:14px Tahoma;margin:6px 0 12px}.setup-note{font-size:12px;line-height:1.9;background:#321e12;border:1px solid #a87540;border-radius:9px;padding:10px;margin:9px 0}.game-meta{display:grid;grid-template-columns:1fr 1fr;gap:7px}.game-stat{background:#321e12;border:1px solid #a87540;border-radius:8px;padding:7px;text-align:center;font-size:11px}.game-stat b{display:block;font-size:16px;color:#ffdc7b;margin-top:3px}.board{grid-template-rows:repeat(3,minmax(0,1fr))}.cell{position:relative;min-height:0}.cell .die{width:76%;font-size:22px}.cell .unit-name{position:absolute;bottom:2px;right:2px;left:2px;font-size:8px;text-align:center;color:#28190d;text-shadow:none;white-space:nowrap;overflow:hidden}.cell .shield-mark{position:absolute;top:2px;left:3px;font-size:12px}.hand-card{border:2px solid #b98b50;border-radius:8px;background:#28190f;color:#ffe8b9;padding:7px 8px;min-width:65px;font:11px Tahoma}.hand-card.selected{outline:3px solid #f7d66c;background:#67441f}.hand-card:disabled{opacity:.35}.grave-list{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}.grave-list button{font-size:10px;padding:6px}.finish-panel{background:#321e12;border:2px solid #d4aa62;border-radius:10px;padding:12px;margin-top:10px;text-align:center}.die-info-modal{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;z-index:999;padding:18px}.die-info-modal.open{display:flex}.die-info-card{width:min(100%,420px);max-height:85vh;overflow:auto;background:linear-gradient(145deg,#7b4c2b,#321e12);border:3px ridge #e1b56e;border-radius:14px;padding:16px;box-shadow:0 12px 40px #000b}.die-info-card p{font-size:13px;line-height:2;color:#f4dfb8}.grave-side{border:1px solid #a87540;border-radius:8px;padding:7px;margin:8px 0}.grave-side h3{margin:3px 0 6px}.grave-empty{font-size:11px;color:#d9bd91}
+footer{text-align:center;color:#c9a77a;font-size:10px;margin:16px 0 4px}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.chest-reward-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:14px 0}.chest-reward-item{text-align:center;font-size:10px;line-height:1.6;color:#ffe8b9;min-width:0}.chest-reward-item .die{width:58px;max-width:100%;margin:0 auto 6px;font-size:23px}.chest-reward-item .die.potion{width:48px}
+</style></head>
+<body><main class="app">
+<header><h1>حمله تاسی</h1><div class="sub">نبردی از جنس شانس و استراتژی</div></header>
+
+<section id="home" class="screen active">
+ <div class="panel" style="text-align:center;margin-top:14px"><div style="font-size:40px">🎲 ⚔️ 🎲</div><div>به میدان حمله تاسی خوش آمدی!</div><div class="small">نبرد آفلاین با چهار ربات</div></div>
+ <div class="menu"><button onclick="startGame()">🎲 شروع نبرد آفلاین</button><button onclick="show('ranking')">رتبه‌بندی</button><button onclick="show('camp')">اردوگاه</button><button onclick="show('help')">راهنما</button><button onclick="alert('برای خروج، صفحه را ببندید.')">خروج</button></div>
+ <div class="small" style="text-align:center;margin:22px 0 6px;line-height:1.9;color:#c9a77a">علی نوری<br>جهت شرکت در مسابقه ی فرهنگی و هنری</div>
+</section>
+
+<section id="camp" class="screen"><div class="panel">
+ <div class="row"><h2>🏕️ اردوگاه</h2><b class="coins" id="campCoins">۱۶ سکه</b></div>
+ <div class="statgrid"><div class="stat">تاس معمولی<b id="count-normal">۱۰</b></div><div class="stat">تاس خاص<b id="count-special">۰</b></div><div class="stat">معجون<b id="count-potion">۰</b></div><div class="stat">پادشاه<b id="count-king">۰</b></div></div>
+ <div class="small" style="margin-top:8px">هر ۶ ساعت یک سکه دریافت می‌کنی؛ سقف موجودی ۲۰ سکه است. فروش هر تاس معمولی ۱ سکه، هر معجون ۲ سکه، هر تاس خاص ۴ سکه و هر پادشاه ۹ سکه ارزش دارد.</div>
+ <h3>🎒 ترکیب پیش‌فرض مسابقه</h3><div class="small">پادشاه و چهار نیروی آزاد را از اردوگاه انتخاب کن؛ این ترکیب برای شروع مسابقه ذخیره می‌شود.</div><div id="campLoadout"></div>
+ <div class="setup-note" id="chestStatus">صندوق تاسی نداری.</div><button class="secondary" id="chestButton" onclick="openChest()" disabled>باز کردن صندوق تاس</button>
+ <div class="tabs"><button onclick="campTab='king';renderCamp()">پادشاهان</button><button onclick="campTab='special';renderCamp()">نیروهای خاص</button><button onclick="campTab='potion';renderCamp()">معجون‌ها</button><button onclick="campTab='normal';renderCamp()">معمولی</button></div>
+ <div id="campItems"></div>
+ <h3>⚔️ ترکیب نیرو برای مسابقه</h3>
+ <div class="small">یک پادشاه + چهار تاس معمولی + چهار انتخاب آزاد (خاص، معجون یا معمولی). برای هر مسابقه باید حداقل این ترکیب را داشته باشی.</div>
+ <div id="loadout"></div>
+ <button class="secondary" onclick="show('home')">بازگشت به منو</button>
+ </div></section>
+
+<section id="help" class="screen"><div class="panel">
+ <h2>📜 راهنمای حمله تاسی</h2><div class="helpnav">
+ <button onclick="helpTo('basic')">قوانین</button><button onclick="helpTo('potion')">معجون‌ها</button><button onclick="helpTo('special')">نیروهای خاص</button><button onclick="helpTo('king')">پادشاهان</button><button onclick="helpTo('economy')">سکه و پاداش</button>
+ </div>
+ <div id="helpContent"></div>
+ <button class="secondary" onclick="show('home')">بازگشت به منو</button>
+ </div></section>
+
+<section id="ranking" class="screen"><div class="panel"><h2>🏆 رتبه‌بندی محلی</h2><div class="row"><span>امتیاز رتبهٔ محلی (برد +۳، باخت −۱)</span><b id="localRank">۰</b></div><div class="row"><span>برد</span><b id="wins">۰</b></div><div class="row"><span>باخت</span><b id="losses">۰</b></div><div class="small">آمار مسابقه‌ها فقط روی همین دستگاه ذخیره می‌شود.</div><button class="secondary" onclick="show('home')">بازگشت</button></div></section>
+
+
+<section id="setup" class="screen"><div class="panel">
+ <h2>🎯 آماده‌سازی مسابقه</h2>
+ <div class="setup-note">برای ورود به میدان باید یک پادشاه، چهار تاس معمولی و چهار انتخاب آزاد از نیروهای خاص، معجون‌ها یا تاس معمولی داشته باشی. هر مسابقه یک سکه هزینه دارد.</div>
+ <label class="small" for="setupKing">پادشاه انتخابی</label><select id="setupKing" class="selectbox"></select>
+ <div id="setupExtras"></div>
+ <div class="small" id="setupStatus"></div>
+ <div class="setup-note">در شروع هر مسابقه یکی از چهار حریف به‌صورت شانسی انتخاب می‌شود:
+ <br>🟢 ربات ۱: آسان، حرکت‌های ساده و گاهی اشتباه.
+ <br>🟡 ربات ۲: متوسط، بررسی خانه‌ها و تهدیدهای مهم.
+ <br>🔴 ربات ۳: حرفه‌ای، جست‌وجوی چندمرحله‌ای با بررسی پاسخ‌های احتمالی تو، تهدیدهای فوری، خطوط برنده، ارزش نیروها و تصمیم‌های دفاعی یا تهاجمی.<br>🟣 ربات ۴: شبه انسان، تحلیل چندمرحله‌ای، بررسی قابلیت‌ها و تعداد استفاده پادشاهان هر دو طرف، پیش‌بینی تهدید مسیرهای ضربدری، ارزیابی تمام معجون‌ها و اثرهای زنجیره‌ای، و حفظ تاس‌های کم‌جان؛ همچنین حملهٔ تاس معمولی به خانهٔ مجاور را برای هر دو طرف بررسی می‌کند و هر زمان حرکت بهتری باشد از آن بهره می‌برد.</div>
+ <button onclick="beginMatch()">شروع مسابقه و انتخاب شانسی حریف</button>
+ <button class="secondary" onclick="show('camp')">رفتن به اردوگاه</button>
+ <button class="secondary" onclick="show('home')">بازگشت به منو</button>
+ </div></section>
+
+<section id="game" class="screen"><div class="panel">
+ <div class="row"><b>⚔️ میدان حمله تاسی</b><span class="coins">هزینه ورود: ۱ سکه</span></div>
+ <div class="game-meta"><div class="game-stat">بازیکن <b style="color:#8ee99c">سبز</b><span id="playerDeck">دسته: ۷</span></div><div class="game-stat"><span id="aiBadge">حریف رایانه‌ای</span><b style="color:#ff918a">قرمز</b><span id="botDeck">دسته: ۷</span></div></div>
+ <div class="info"><span id="turn">نوبت بازیکن سبز</span><span id="moves">کار باقی‌مانده: ۱</span></div>
+ <div class="info"><span id="kingInfo">قابلیت پادشاه: ۰ از ۳</span><span id="rubyInfo">یاقوت: ۰</span></div>
+ <div class="board" id="board"></div>
+ <div class="small" style="text-align:center" id="instruction">برای شروع، پادشاه خودت را از دسته انتخاب کن و سپس یک خانه خالی را لمس کن.</div>
+ <div class="hand" id="hand"></div>
+ <div class="actions"><button class="secondary" id="kingButton" onclick="useKing()">قابلیت پادشاه</button><button class="secondary" onclick="clearSelection()">لغو انتخاب تاس</button></div>
+ <div class="small" id="msg" style="text-align:center;margin-top:8px;min-height:28px"></div>
+ <div class="grave-side" style="margin-top:12px"><h3>📜 گزارش زنده مسابقه</h3><div id="eventLog" class="small" style="max-height:190px;overflow-y:auto;text-align:right;line-height:1.9;padding:8px;background:rgba(0,0,0,.12);border-radius:10px"><div>هنوز رویدادی ثبت نشده است.</div></div></div>
+ <div class="grave-side"><h3>🟢 قبرستان نیروهای خودی</h3><div class="grave-list" id="graveList"></div><div class="grave-empty" id="ownGraveEmpty">هنوز نیرویی خارج نشده است.</div></div><div class="grave-side"><h3>🔴 قبرستان نیروهای حریف</h3><div class="grave-list" id="enemyGraveList"></div><div class="grave-empty" id="enemyGraveEmpty">هنوز نیرویی خارج نشده است.</div></div>
+ <div id="finishPanel"></div>
+ <button class="secondary" onclick="exitMatch()">بازگشت به منو</button>
+ </div></section>
+<footer>حمله تاسی | نسخه آفلاین چهارهوشی</footer></main>
+<div class="die-info-modal" id="dieInfoModal" onclick="if(event.target===this)closeDieInfo()"><div class="die-info-card"><div class="row"><h2 id="dieInfoTitle">اطلاعات تاس</h2><button class="secondary" onclick="closeDieInfo()">بستن ✕</button></div><div id="dieInfoBody"></div><div id="dieInfoActions"></div></div></div>
+<div class="die-info-modal" id="chestRewardModal" onclick="if(event.target===this)closeChestRewards()"><div class="die-info-card"><div class="row"><h2 id="chestRewardTitle">جایزه صندوق</h2><button class="secondary" onclick="closeChestRewards()">بستن ✕</button></div><p style="text-align:center">این تاس‌ها به مجموعه‌ات اضافه شدند!</p><div id="chestRewardBody" class="chest-reward-grid"></div><button onclick="closeChestRewards()" style="width:100%;margin-top:12px">عالیه!</button></div></div>
+<script>
+const fa=n=>String(n).replace(/[0-9]/g,d=>'۰۱۲۳۴۵۶۷۸۹'[d]);
+let coins=16,inv={normal:10,king:0,special:0,potion:0},owned={normal:10},wins=0,losses=0,rank=0,chestPending=false,chestReadyAt=0,chestQueue=[],lastCoinAt=Date.now(),campTab='king',selected=null,board=Array(9).fill(null),moves=2,turn=0;
+let match=null,selectedPiece=null,actionMode=null,uidCounter=1,botTimer=null,preferred={king:'',extra1:'',extra2:'',extra3:'',extra4:''};
+let aiSimulationDepth=0;const aiEvalCache=new WeakMap();
+let aiLevel=2;
+const catalog={
+ king:[['king_green','پادشاه سبز کم‌رنگ','در مسیر سبز یا قرمز، به خود یا نیروی خودی غیرمعجون در همان مسیر ۲ جان اضافه می‌کند.'],['king_color','پادشاه رنگارنگ','نیروی دشمن غیرمعجون و غیرپادشاه را در مسیر خود جابه‌جا می‌کند؛ اگر خانه مقصد پر باشد جای دو تاس عوض می‌شود.'],['king_black','پادشاه سیاه','نیروی خودی غیرمعجون در مسیر را انتخاب می‌کند، جانش را به خود می‌افزاید و آن نیرو به دسته برمی‌گردد.'],['king_yellow','پادشاه زرد','با آسیب دیدن نیروی خودی غیرمعجون، یک یاقوت می‌گیرد؛ با پرداخت ۲ یاقوت می‌تواند دو نیروی دیگر وارد کند.'],['king_white','پادشاه سفید','جان نیروی دشمن غیرمعجون و غیرپادشاه در مسیر را به ۲ تبدیل می‌کند.'],['king_blue','پادشاه آبی پررنگ','یک نیروی مرده خودی غیرمعجون را با جان ۱ به دسته برمی‌گرداند.'],['king_red','پادشاه قرمز','به نیروی دشمن غیرمعجون و غیرپادشاه در مسیر یک ضربه می‌زند.']],
+ special:[['sp_cream','تاس کرمی','هرگاه نیروی خودی غیرمعجون و غیرپادشاه وارد زمین شود، به‌طور شانسی یک ضربه به یکی از تاس‌های حریف می‌زند.'],['sp_purple','تاس بنفش','هنگام ورود به زمین، جان خود را با یک تاس خودی یا دشمن در زمین عوض می‌کند.'],['sp_brown','تاس قهوه‌ای','تا وقتی زنده است، به همه تاس‌های خودی به‌جز معجون‌ها ۱ جان اضافه می‌کند.'],['sp_orange','تاس نارنجی','هنگام مرگ، به تمام تاس‌های داخل زمین به‌جز پادشاهان ۲ جان کم می‌کند.'],['sp_stripe','تاس سبز با خطوط آبی و قرمز','با کلیک روی خودش فعال می‌شود و می‌تواند به یک نیروی دشمنِ غیرپادشاه در خانهٔ مجاور حمله کند. اگر جان خودش ۱ تا ۳ باشد، ۱ جان و اگر ۴ تا ۶ باشد، ۲ جان از دشمن کم می‌کند و به همان اندازه جان می‌گیرد. استفاده از این قابلیت محدودیت ۳ باره ندارد.'],['sp_gray','تاس خاکستری','هنگام ورود، اگر حریف معجون داشته باشد یکی را شانسی از دسته حریف به دسته خود می‌آورد.'],['sp_darkgreen','تاس سبز پررنگ','با ورود هر نیروی خودی غیرمعجون، اگر عددش با این تاس برابر باشد، پادشاه خودی ۲ جان می‌گیرد.'],['sp_pink','تاس صورتی','هرگاه نیروی دشمن غیرمعجون بمیرد، جان این تاس ۶ می‌شود.'],['sp_maroon','تاس زرشکی','هنگام ورود، به‌ازای هر تاس خودی داخل زمین، یک جان از خودش کم می‌کند؛ اگر پادشاه بمیرد، در صورت زنده بودن جای او را می‌گیرد.'],['sp_jade','تاس یشمی','عددش همیشه با عدد پادشاه حریف برابر است و با تغییر جان پادشاه، تغییر می‌کند.']],
+ potion:[['pot_green','معجون سبز کوچک','یک‌بار می‌توان آن را روی یک تاس خودی غیرمعجون کشید و به‌اندازه جان معجون به آن تاس جان افزود.'],['pot_red','معجون قرمز کوچک','اگر تاس حریف غیرپادشاه با جان ۴، ۵ یا ۶ وارد زمین شود، این معجون خودش را از بین می‌برد و به‌اندازه جانش از آن تاس کم می‌کند.'],['pot_yellow','معجون زرد کوچک','پایان هر نوبت خودی ۲ جان از دست می‌دهد؛ هنگام مرگ ۶ ضربه تصادفی به تاس‌های خودی و حریف غیرپادشاه می‌زند. هر ضربه ۱ جان کم می‌کند.'],['pot_blue','معجون آبی کوچک','سپر است و روی تاس خودی غیرمعجون قرار می‌گیرد؛ ضربه را به‌جای آن می‌گیرد و اگر تاس زیرین قرار باشد از زمین خارج شود، سپر به‌جای آن خارج می‌شود.']],
+ normal:[['normal','تاس کرمی معمولی','نیروی پایه بازی؛ جان آن پیش از تعیین خانه به‌صورت تصادفی از ۱ تا ۶ تعیین می‌شود. با کلیک روی خودش می‌تواند به نیروی دشمنِ غیرپادشاه در خانهٔ مجاور حمله کند؛ با جان ۱ تا ۳، یک جان و با جان ۴ تا ۶، دو جان از دشمن کم می‌کند و خودش جان اضافه نمی‌گیرد.']]
+};
+const prices={normal:2,special:7,king:12,potion:5},typeNames={normal:'تاس معمولی',special:'نیروی خاص',king:'پادشاه',potion:'معجون'};
+function show(id){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');refresh()}
+function refresh(){document.getElementById('campCoins').textContent=fa(coins)+' سکه';for(let k in inv)document.getElementById('count-'+k).textContent=fa(inv[k]);document.getElementById('wins').textContent=fa(wins);document.getElementById('losses').textContent=fa(losses);document.getElementById('localRank').textContent=fa(rank);renderCamp();updateChestUI()}
+function syncInventory(){inv={normal:owned.normal||0,king:0,special:0,potion:0};for(const [id,n] of Object.entries(owned)){if(id.startsWith('king_'))inv.king+=n;if(id.startsWith('sp_'))inv.special+=n;if(id.startsWith('pot_'))inv.potion+=n;}}
+function renderCamp(){let root=document.getElementById('campItems');if(!root)return;root.innerHTML='';let title=document.createElement('h3');title.textContent=campTab==='king'?'👑 پادشاهان':campTab==='special'?'⭐ نیروهای خاص':campTab==='potion'?'🧪 معجون‌ها':'🎲 تاس معمولی';root.append(title);
+ catalog[campTab].forEach(([id,name,desc])=>{let d=document.createElement('div');d.className='item';let count=owned[id]||0;d.innerHTML=`<div class="item-info"><div class="item-title">${name} <span class="badge">موجودی: ${fa(count)}</span></div><div class="item-desc">${desc}</div></div><div class="item-actions"><button onclick="buy('${campTab}','${id}')">خرید<br>${fa(prices[campTab])} سکه</button><button class="secondary" onclick="sell('${campTab}','${id}')">فروش<br>${fa(({normal:1,special:4,king:9,potion:2})[campTab]||1)} سکه</button></div>`;root.append(d)});
+ let load=document.getElementById('loadout');load.innerHTML=`<div class="item"><span>پادشاه</span><b>${fa(inv.king)} عدد</b></div><div class="item"><span>تاس معمولی</span><b>${fa(inv.normal)} عدد</b></div><div class="item"><span>نیروی خاص</span><b>${fa(inv.special)} عدد</b></div><div class="item"><span>معجون</span><b>${fa(inv.potion)} عدد</b></div>`;renderCampLoadout();
+}
+function renderCampLoadout(){const root=document.getElementById('campLoadout');if(!root)return;const kings=allKingCodes.filter(c=>(owned[c]||0)>0),free=allFreeCodes.filter(c=>(owned[c]||0)>0);const fields=[['campKing',kings,preferred.king,'انتخاب پادشاه']];for(let n=1;n<=4;n++)fields.push(['campExtra'+n,free,preferred['extra'+n]||'','انتخاب آزاد '+fa(n)]);root.innerHTML='';fields.forEach(([id,items,value,placeholder])=>{const sel=document.createElement('select');sel.id=id;sel.className='selectbox';sel.add(new Option(placeholder,''));items.forEach(c=>sel.add(new Option(codeTitle(c)+' | موجودی '+fa(owned[c]),c)));if(items.includes(value))sel.value=value;root.append(sel);});const b=document.createElement('button');b.className='secondary';b.textContent='ذخیره ترکیب اردوگاه';b.onclick=saveCampLoadout;root.append(b);}
+function saveCampLoadout(){const k=document.getElementById('campKing').value,extras=[];for(let n=1;n<=4;n++)extras.push(document.getElementById('campExtra'+n).value);preferred={king:k,extra1:extras[0],extra2:extras[1],extra3:extras[2],extra4:extras[3]};saveGameState();alert('ترکیب پیش‌فرض مسابقه ذخیره شد.');}
+function buy(k,id){if(coins<prices[k])return alert('سکه کافی نیست!');coins-=prices[k];owned[id]=(owned[id]||0)+1;syncInventory();saveGameState();refresh()}
+function sell(k,id){if((owned[id]||0)<=0)return alert('از این نوع نیرو موجودی نداری.');owned[id]--;const saleValue={normal:1,special:4,king:9,potion:2}[k]||1;coins=Math.min(20,coins+saleValue);syncInventory();saveGameState();refresh()}
+function helpTo(section){let c=document.getElementById('helpContent');let data={
+basic:`<div class="help-section"><h3>🎯 هدف و زمین بازی</h3><p>بازی دو نفره و نوبتی است. زمین ۳×۳ و دارای ۹ خانه است؛ هر خانه فقط یک تاس می‌پذیرد. هر بازیکن در هر نوبت دقیقاً یک کار دارد: یا یک نیرو از دسته به خانه خالی وارد می‌کند، یا از قابلیت یک پادشاه/معجون خودی در زمین استفاده می‌کند. حمله به تاس کناری به‌عنوان کار مستقل وجود ندارد؛ قابلیت ویژه تاس سبز خط‌دار نیز همان یک کار نوبت را مصرف می‌کند.</p></div><div class="help-section"><p>در طول مسابقه روی هر تاس خودی یا دشمن کلیک کن تا نام، جان و قابلیت آن را ببینی. قبرستان هر دو طرف نیز جداگانه نمایش داده می‌شود.</p><h3>شروع مسابقه</h3><ul><li>شروع‌کننده به‌صورت شانسی انتخاب می‌شود.</li><li>پادشاه‌ها باید در ابتدای مبارزه وارد زمین شوند.</li><li>هر تاس پیش از انتخاب خانه، جان تصادفی ۱ تا ۶ می‌گیرد و پس از انتخاب دیگر قابل تعویض نیست.</li><li>هر تاس حداکثر ۶ جان دارد؛ افزایش جان از ۶ بیشتر نمی‌شود.</li></ul></div><div class="help-section"><h3>ردیف و ستون کامل</h3><ul><li>با پر شدن هر سه خانه افقی یا عمودی، مجموع جان تاس‌های هر بازیکن در آن سه خانه محاسبه می‌شود.</li><li>مجموع بیشتر: تاس‌های طرف برنده به دسته خود برمی‌گردند و تاس‌های طرف بازنده به قبرستان می‌روند.</li><li>تساوی: همه تاس‌های آن خط به دسته‌های خود برمی‌گردند.</li><li>اگر حتی یک معجون در آن خط باشد، محاسبه انجام نمی‌شود و تاس‌ها همان‌جا می‌مانند.</li><li>پادشاه بازنده نیز به دسته برمی‌گردد، نه قبرستان.</li></ul></div><div class="help-section"><h3>پایان بازی</h3><p>اگر بازیکنی در دسته و میدان هیچ نیرویی جز پادشاه نداشته باشد، بازی را می‌بازد. پس از برد یا باخت، تمام تاس‌های معمولی خودی که در قبرستان همان مسابقه هستند از مجموعه‌اش حذف می‌شوند؛ در صورت باخت، علاوه بر آن یک پادشاه، نیروی خاص یا معجون نیز به‌صورت تصادفی از نیروهای استفاده‌شده حذف می‌شود. تاس‌های معمولی‌ای که در قبرستان نیستند به موجودی بازمی‌گردند.</p></div>`,
+potion:`<div class="help-section"><h3>🧪 معجون‌ها</h3><ul>${catalog.potion.map(x=>`<li><b>${x[1]}:</b> ${x[2]}</li>`).join('')}</ul></div>`,
+special:`<div class="help-section"><h3>⭐ نیروهای تاس خاص</h3><ul>${catalog.special.map(x=>`<li><b>${x[1]}:</b> ${x[2]}</li>`).join('')}</ul></div>`,
+king:`<div class="help-section"><h3>👑 پادشاهان تاسی</h3><p>از قابلیت هر پادشاه در هر مسابقه حداکثر ۳ بار می‌توان استفاده کرد. قابلیت‌های وابسته به مسیر فقط روی مسیر سبز یا قرمز مربوط به محل پادشاه اثر می‌گذارند؛ پادشاهی که در خانه وسط قرار دارد هر دو مسیر را پوشش می‌دهد.</p><ul>${catalog.king.map(x=>`<li><b>${x[1]}:</b> ${x[2]}</li>`).join('')}</ul></div>`,
+economy:`<div class="help-section"><h3>💰 سکه و اردوگاه</h3><ul><li>بازیکن تازه‌وارد ۱۶ سکه و ۱۰ تاس معمولی دارد.</li><li>هر ۶ ساعت یک سکه دریافت می‌کند؛ سقف موجودی ۲۰ سکه است و سکه بیشتر حذف می‌شود.</li><li>خرید تاس معمولی ۲، نیروی خاص ۷، پادشاه ۱۲ و معجون ۵ سکه است.</li><li>فروش تاس معمولی ۱ سکه، معجون ۲ سکه، تاس خاص ۴ سکه و پادشاه ۹ سکه می‌دهد.</li><li>شروع هر مسابقه ۱ سکه هزینه دارد؛ با صفر سکه نمی‌توان بازی را شروع کرد.</li><li>برد: ۳ امتیاز رتبه، ۳ سکه و در صورت داشتن ظرفیت یک صندوق تاس.</li><li>صندوق یک ساعت بعد آماده باز شدن می‌شود و ۳ سکه و دو تاس می‌دهد: یک معمولی و یک تاس شانسی با احتمال ۵۰٪ معجون، ۴۰٪ نیروی خاص و ۱۰٪ پادشاه.</li><li>حداکثر ۳ صندوق می‌توانی ذخیره کنی؛ وقتی هر ۳ جایگاه پر باشد، بردهای بعدی صندوق تازه نمی‌دهند. هر صندوق پس از یک ساعت آماده می‌شود و می‌توانی با پرداخت ۲ سکه آن را فوری باز کنی.</li></ul></div><div class="help-section"><h3>ترکیب مجاز برای مسابقه</h3><p>یک پادشاه، چهار تاس معمولی و چهار انتخاب آزاد: دو نیروی خاص، یک خاص و یک معجون، دو معجون، یا جایگزینی هرکدام از چهار انتخاب با تاس معمولی. اگر چهار تاس معمولی موجود نباشد، مسابقه آغاز نمی‌شود.</p></div>`
+};c.innerHTML=data[section]||data.basic}
+function startGame(){syncInventory();if(coins<1)return alert('برای شروع مسابقه حداقل ۱ سکه لازم است.');show('setup');renderSetup()}
+const allKingCodes=catalog.king.map(x=>x[0]);
+const allFreeCodes=[...catalog.special.map(x=>x[0]),...catalog.potion.map(x=>x[0]),'normal'];
+const codeTitle=code=>{for(const group of Object.values(catalog)){const hit=group.find(x=>x[0]===code);if(hit)return hit[1]}return code};
+function renderSetup(){const king=document.getElementById('setupKing'),root=document.getElementById('setupExtras'),kings=allKingCodes.filter(c=>(owned[c]||0)>0),free=allFreeCodes.filter(c=>(owned[c]||0)>0);king.innerHTML='';if(!kings.length)king.innerHTML='<option value="">هیچ پادشاهی نداری؛ از اردوگاه بخر</option>';else kings.forEach(c=>king.add(new Option(codeTitle(c)+' | موجودی '+fa(owned[c]),c)));if(kings.includes(preferred.king))king.value=preferred.king;root.innerHTML='';for(let n=1;n<=4;n++){const label=document.createElement('label');label.className='small';label.textContent='انتخاب آزاد '+fa(n);const sel=document.createElement('select');sel.id='setupExtra'+n;sel.className='selectbox';if(!free.length)sel.add(new Option('موجودی انتخاب آزاد نداری',''));else free.forEach(c=>sel.add(new Option(codeTitle(c)+' | موجودی '+fa(owned[c]),c)));if(free.includes(preferred['extra'+n]))sel.value=preferred['extra'+n];root.append(label,sel);sel.onchange=updateSetupStatus;if(!sel.value&&free.includes('normal'))sel.value='normal';}king.onchange=updateSetupStatus;updateSetupStatus();}
+function updateSetupStatus(){const k=document.getElementById('setupKing').value,need={};if(k)need[k]=(need[k]||0)+1;let complete=true;for(let n=1;n<=4;n++){const code=document.getElementById('setupExtra'+n)?.value||'';if(!code)complete=false;else need[code]=(need[code]||0)+1;}need.normal=(need.normal||0)+4;const ok=!!k&&complete&&(owned.normal||0)>=need.normal&&Object.entries(need).every(([c,n])=>(owned[c]||0)>=n);document.getElementById('setupStatus').textContent=ok?'آماده‌ای! یک پادشاه، چهار تاس معمولی و چهار انتخاب آزاد در موجودی داری.':'موجودی کافی نیست. یک پادشاه، چهار تاس معمولی و چهار انتخاب آزاد لازم داری؛ ترکیب آزاد می‌تواند هر تعداد معمولی، خاص یا معجون باشد.';return ok;}
+function randomOf(arr){return arr[Math.floor(Math.random()*arr.length)]}
+function makeCard(code,owner,presetHp=null){return {uid:uidCounter++,code,owner,hp:presetHp,shield:null,aura:0,presetHp};}
+function makeSide(owner,codes,kingCode){return {owner,hand:codes.map(c=>makeCard(c,owner)),grave:[],kingCode,kingUses:0,rubies:0,roster:codes.slice(),kingPlaced:false};}
+function freeCategory(code){return code==='normal'?'normal':code.startsWith('sp_')?'special':code.startsWith('pot_')?'potion':'normal';}
+function chooseBotExtras(playerExtras){
+ const used=new Set(),chosen=[];
+ for(const playerCode of playerExtras){
+  const category=freeCategory(playerCode),pool=allFreeCodes.filter(code=>freeCategory(code)===category);
+  let options=pool.filter(code=>code!==playerCode&&!used.has(code));
+  if(!options.length)options=pool.filter(code=>code!==playerCode);
+  if(!options.length)options=pool.filter(code=>!used.has(code));
+  if(!options.length)options=pool;
+  const picked=randomOf(options.length?options:[playerCode]);
+  chosen.push(picked);used.add(picked);
+ }
+ return chosen;
+}
+function kingSynergyScore(kingCode,extras){
+ const allNonPotion=['normal','sp_cream','sp_purple','sp_brown','sp_orange','sp_stripe','sp_gray','sp_darkgreen','sp_pink','sp_maroon','sp_jade'];
+ const synergy={
+  king_green:allNonPotion,
+  king_color:['sp_purple','sp_stripe','sp_cream','sp_orange','sp_jade'],
+  king_black:allNonPotion,
+  king_yellow:allNonPotion,
+  king_white:['sp_stripe','sp_cream','sp_pink','sp_jade','sp_orange'],
+  king_blue:allNonPotion,
+  king_red:['sp_stripe','sp_cream','sp_pink','sp_orange','sp_jade']
+ };
+ return extras.reduce((score,code)=>score+((synergy[kingCode]||[]).includes(code)?1:0),0);
+}
+function beginMatch(){
+ if(!updateSetupStatus())return;
+ if(coins<1)return alert('برای شروع مسابقه حداقل ۱ سکه لازم است.');
+ const king=document.getElementById('setupKing').value,extras=[];for(let n=1;n<=4;n++)extras.push(document.getElementById('setupExtra'+n).value);
+ preferred={king,extra1:extras[0],extra2:extras[1],extra3:extras[2],extra4:extras[3]};const roster=[king,'normal','normal','normal','normal',...extras];
+ const counts={};roster.forEach(c=>counts[c]=(counts[c]||0)+1);
+ if(Object.entries(counts).some(([c,n])=>(owned[c]||0)<n))return alert('موجودی تغییر کرده است؛ ترکیب را دوباره بررسی کن.');
+ Object.entries(counts).forEach(([c,n])=>owned[c]-=n);syncInventory();coins--;saveGameState();
+ const botExtras=chooseBotExtras(extras);
+ const playerKingSynergy=kingSynergyScore(king,extras);
+ let botKing;
+ if(playerKingSynergy>=2){
+  const rankedKings=allKingCodes.map(code=>({code,score:kingSynergyScore(code,botExtras)})).sort((a,b)=>b.score-a.score);
+  const bestScore=rankedKings[0]?.score||0;
+  let candidates=rankedKings.filter(x=>x.score===bestScore&&x.code!==king);
+  if(!candidates.length)candidates=rankedKings.filter(x=>x.score===bestScore);
+  botKing=(candidates.length?randomOf(candidates):{code:randomOf(allKingCodes)}).code;
+ }else{
+  const alternatives=allKingCodes.filter(code=>code!==king);
+  botKing=randomOf(alternatives.length?alternatives:allKingCodes);
+ }
+ aiLevel=1+Math.floor(Math.random()*4);
+ const botCodes=[botKing,'normal','normal','normal','normal',...botExtras];
+ match={sides:[makeSide(0,roster,king),makeSide(1,botCodes,botKing)],board:Array(9).fill(null),turn:Math.random()<.5?0:1,actions:1,selected:null,mode:null,over:false,roster:roster.slice(),humanHistory:[],eventLog:[],aiLevel,aiName:['ربات ۱','ربات ۲','ربات ۳','ربات ۴'][aiLevel-1],message:'حریف این مسابقه: '+['ربات ۱','ربات ۲','ربات ۳','ربات ۴'][aiLevel-1]+'. ابتدا پادشاه‌ها وارد زمین می‌شوند.'};
+ selectedPiece=null;actionMode=null;show('game');renderGame();
+ if(match.turn===1){match.message='ربات ۳ ثانیه فرصت دارد تا وضعیت زمین را تحلیل کند...';renderGame();setTimeout(botTurn,3000);}
+}
+function typeOf(p){if(!p)return '';if(p.code==='normal')return 'normal';if(p.code.startsWith('king_'))return 'king';if(p.code.startsWith('sp_'))return 'special';if(p.code.startsWith('pot_'))return 'potion';return 'normal'}
+function isPotion(p){return !!p&&typeOf(p)==='potion'}
+function sideNow(){return match.sides[match.turn]}
+function boardKingIndex(owner){return match.board.findIndex(p=>p&&p.owner===owner&&typeOf(p)==='king')}
+function mustPlaceKing(side){return side.hand.some(p=>typeOf(p)==='king')&& !match.board.some(p=>p&&p.owner===side.owner&&typeOf(p)==='king')}
+function rollHp(card){if(card.hp==null)card.hp=card.presetHp==null?1+Math.floor(Math.random()*6):card.presetHp;return card.hp}
+function clearSelection(){if(!match||match.over||match.turn!==0)return;selectedPiece=null;actionMode=null;match.message='انتخاب لغو شد؛ عددی که قبلاً برای تاس تعیین شده بود ثابت می‌ماند.';renderGame()}
+function chooseCard(uid){if(!match||match.over||match.turn!==0||match.actions<=0||actionMode)return;const side=sideNow(),card=side.hand.find(p=>p.uid===uid);if(!card)return;if(mustPlaceKing(side)&&typeOf(card)!=='king'){match.message='ابتدا باید پادشاهت را وارد زمین کنی.';renderGame();return;}if(!mustPlaceKing(side)&&typeOf(card)==='king'&&boardKingIndex(0)>=0){match.message='پادشاهت هم‌اکنون در زمین است.';renderGame();return;}selectedPiece=card;rollHp(card);match.message=codeTitle(card.code)+' انتخاب شد؛ عدد آن '+fa(card.hp)+' است. حالا خانه مناسب را انتخاب کن.';renderGame()}
+function addGameLog(message,owner=null){if(aiSimulationDepth>0||!match||!message)return;match.eventLog=match.eventLog||[];const actor=owner===0?'🟢 بازیکن':owner===1?'🔴 ربات':'⚔️ بازی';const item={actor,message,time:new Date().toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit',second:'2-digit'})};const last=match.eventLog[match.eventLog.length-1];if(last&&last.actor===item.actor&&last.message===item.message)return;match.eventLog.push(item);if(match.eventLog.length>100)match.eventLog.shift();const box=document.getElementById('eventLog');if(box){box.innerHTML='';match.eventLog.slice().reverse().forEach(e=>{const row=document.createElement('div');row.style.padding='3px 0';row.style.borderBottom='1px solid rgba(255,255,255,.08)';row.textContent='['+e.time+'] '+e.actor+'، '+e.message;box.append(row);});}}
+function logCurrentMessage(owner){if(match&&match.message)addGameLog(match.message,owner);}
+function renderGame(){if(!match)return;
+ const aiBadge=document.getElementById('aiBadge');if(aiBadge)aiBadge.textContent=match.aiName||'حریف رایانه‌ای';
+ const b=document.getElementById('board');b.innerHTML='';match.board.forEach((v,i)=>{const c=document.createElement('div');c.className='cell';c.setAttribute('role','button');c.setAttribute('aria-label','خانه '+(i+1));c.onclick=()=>onCell(i);if(v){const d=document.createElement('div');const entering=!!v._entryAnimation;d.className='die '+(v.owner===0?'me':'enemy')+' unit-'+v.code+(typeOf(v)==='king'?' king':'')+(isPotion(v)?' potion':'')+(entering?' die-enter':'');if(entering)v._entryAnimation=false;d.textContent=(typeOf(v)==='king'?'♛ ':'')+fa(v.hp);d.title='برای مشاهده قابلیت تاس کلیک کن';d.style.cursor='pointer';d.onclick=(ev)=>{ev.stopPropagation();showDieInfo(i);};c.append(d);const nm=document.createElement('span');nm.className='unit-name';nm.textContent=codeTitle(v.code);c.append(nm);if(v.shield){const sh=document.createElement('span');sh.className='shield-mark';sh.textContent='🛡️'+fa(v.shield.hp);c.append(sh)}}b.append(c)});
+ const side=sideNow();document.getElementById('turn').textContent=match.turn===0?'نوبت بازیکن سبز':'نوبت حریف قرمز';document.getElementById('moves').textContent='کارهای باقی‌مانده: '+fa(match.actions);
+ document.getElementById('playerDeck').textContent='دسته: '+fa(match.sides[0].hand.length);document.getElementById('botDeck').textContent='دسته: '+fa(match.sides[1].hand.length);
+ document.getElementById('kingInfo').textContent='قابلیت پادشاه: '+fa(side.kingUses)+' از ۳';document.getElementById('rubyInfo').textContent='یاقوت: '+fa(side.rubies);
+ const hand=document.getElementById('hand');hand.innerHTML='';side.hand.forEach(card=>{const bt=document.createElement('button');bt.className='hand-card'+(selectedPiece&&selectedPiece.uid===card.uid?' selected':'');bt.textContent=(typeOf(card)==='king'?'♛ ':'')+codeTitle(card.code)+' '+(card.hp==null?'؟':fa(card.hp));bt.disabled=match.turn!==0||match.actions<=0||(!!actionMode&&actionMode.kind!=='king_yellow');bt.onclick=()=>{if(actionMode&&actionMode.kind==='king_yellow'){chooseYellowExtra(card.uid);}else chooseCard(card.uid)};hand.append(bt)});
+ document.getElementById('msg').textContent=match.message||'';
+ if(match.message&&match._lastRenderedMessage!==match.message){addGameLog(match.message,match.turn);match._lastRenderedMessage=match.message;}
+ const logBox=document.getElementById('eventLog');if(logBox&&match.eventLog){logBox.innerHTML='';match.eventLog.slice().reverse().forEach(e=>{const row=document.createElement('div');row.style.padding='3px 0';row.style.borderBottom='1px solid rgba(255,255,255,.08)';row.textContent='['+e.time+'] '+e.actor+'، '+e.message;logBox.append(row);});}
+ document.getElementById('instruction').textContent=match.turn===0?'در هر نوبت فقط یک کار داری: یا یک نیرو وارد کن یا از قابلیت یک تاس استفاده کن. تاس معمولی و تاس سبز خط‌دار هم با کلیک روی خودشان می‌توانند به دشمنِ غیرپادشاهِ خانهٔ مجاور حمله کنند و همین یک کار را مصرف می‌کنند؛ تاس معمولی جان نمی‌گیرد.':'حریف در حال فکر کردن و انتخاب حرکت است...';
+ const kingBtn=document.getElementById('kingButton');kingBtn.disabled=match.turn!==0||match.actions<=0||side.kingUses>=3||boardKingIndex(0)<0||!!actionMode;
+ const grave=document.getElementById('graveList'),enemyGrave=document.getElementById('enemyGraveList');grave.innerHTML='';enemyGrave.innerHTML='';match.sides[0].grave.forEach((piece,idx)=>{const bt=document.createElement('button');bt.className='secondary';bt.textContent=codeTitle(piece.code)+' '+(piece.hp==null?'':fa(piece.hp));bt.disabled=match.turn!==0||!actionMode||actionMode.kind!=='king_blue';bt.onclick=()=>chooseGrave(idx);grave.append(bt)});match.sides[1].grave.forEach(piece=>{const bt=document.createElement('button');bt.className='secondary';bt.disabled=true;bt.textContent=codeTitle(piece.code)+' '+(piece.hp==null?'':fa(piece.hp));enemyGrave.append(bt)});document.getElementById('ownGraveEmpty').style.display=match.sides[0].grave.length?'none':'block';document.getElementById('enemyGraveEmpty').style.display=match.sides[1].grave.length?'none':'block';
+ const fp=document.getElementById('finishPanel');fp.innerHTML=match.over?`<div class="finish-panel"><h2>${match.winner===0?'🏆 پیروزی!':match.winner===1?'💔 شکست!':'🤝 مساوی'}</h2><p>${match.finishText||''}</p><button onclick="show('home')">بازگشت به منو</button><button class="secondary" onclick="startGame()">مسابقه بعدی</button></div>`:'';
+}
+function showDieInfo(index){if(!match||!match.board[index])return;const p=match.board[index],entry=[...catalog.king,...catalog.special,...catalog.potion,...catalog.normal].find(x=>x[0]===p.code),name=entry?entry[1]:codeTitle(p.code),desc=entry?entry[2]:'برای این تاس توضیحی ثبت نشده است.';document.getElementById('dieInfoTitle').textContent=(p.owner===0?'🟢 تاس خودی: ':'🔴 تاس حریف: ')+name;let details='<p><b>جان فعلی:</b> '+(p.hp==null?'—':fa(p.hp))+'</p><p><b>قابلیت:</b> '+desc+'</p>';if(p.shield)details+='<p><b>سپر:</b> '+codeTitle(p.shield.code)+'، جان سپر '+fa(p.shield.hp)+'</p>';if(p.aura)details+='<p><b>جان افزوده‌شده از تاس قهوه‌ای:</b> '+fa(p.aura)+'</p>';document.getElementById('dieInfoBody').innerHTML=details;const actions=document.getElementById('dieInfoActions');actions.innerHTML='';if(p.owner===0&&(p.code==='sp_stripe'||p.code==='normal')){const b=document.createElement('button');b.textContent='فعال‌کردن قابلیت حمله';b.disabled=match.turn!==0||match.actions<=0||!!actionMode;b.onclick=()=>{closeDieInfo();useAdjacentAttack(index)};actions.append(b);}const canSelectTarget=(!!actionMode&&!['king_yellow_place','king_blue'].includes(actionMode.kind))||!!(selectedPiece&&(selectedPiece.code==='pot_green'||selectedPiece.code==='pot_blue'));if(canSelectTarget&&match.turn===0&&!match.over){const pick=document.createElement('button');pick.className='secondary';pick.style.marginTop='8px';pick.textContent='انتخاب این خانه برای حرکت جاری';pick.onclick=()=>{closeDieInfo();onCell(index)};actions.append(pick);}document.getElementById('dieInfoModal').classList.add('open');}
+function closeDieInfo(){const m=document.getElementById('dieInfoModal');if(m)m.classList.remove('open');}
+function recordHumanPlacement(index,card){if(!match||match.aiLevel!==4)return;match.humanHistory=match.humanHistory||[];match.humanHistory.push({index,code:card.code});if(match.humanHistory.length>8)match.humanHistory.shift();}
+function onCell(i){if(!match||match.over||match.turn!==0)return;if(actionMode&&actionMode.kind==='king_yellow_place'){const mode=actionMode,card=mode.card;if(card.code==='pot_green'||card.code==='pot_blue'){const target=match.board[i];if(!target||target.owner!==0||isPotion(target)||(card.code==='pot_blue'&&target.shield)){match.message='برای این معجون یک تاس خودیِ مناسب انتخاب کن.';renderGame();return;}removeFromHand(0,card);if(card.code==='pot_green')target.hp=Math.min(6,target.hp+card.hp);else target.shield=card;syncJade();completeYellowKingStep(mode,'معجون روی نیروی خودی استفاده شد.');return;}if(match.board[i]){match.message='خانه باید خالی باشد.';renderGame();return;}removeFromHand(0,card);recordHumanPlacement(i,card);deployCard(0,card,i);completeYellowKingStep(mode,codeTitle(card.code)+' وارد زمین شد.');return;}if(actionMode){handleModeCell(i);return;}if(selectedPiece){const kind=selectedPiece.code;if(kind==='pot_green'||kind==='pot_blue'){const target=match.board[i];if(!target||target.owner!==0||isPotion(target)){match.message='این معجون باید روی یک تاس خودیِ غیرمعجون استفاده شود.';renderGame();return;}const card=selectedPiece;if(kind==='pot_green'){target.hp=Math.min(6,target.hp+card.hp);removeFromHand(0,card);selectedPiece=null;syncJade();match.message='معجون سبز مصرف شد و جان تاس افزایش یافت.';afterHumanAction();}else{if(target.shield){match.message='این تاس از قبل سپر دارد.';renderGame();return;}target.shield=card;removeFromHand(0,card);selectedPiece=null;match.message='سپر آبی روی تاس قرار گرفت.';afterHumanAction();}return;}
+ if(match.board[i]){match.message='این خانه پر است؛ یک خانه خالی انتخاب کن.';renderGame();return;}recordHumanPlacement(i,selectedPiece);deployCard(0,selectedPiece,i);selectedPiece=null;afterHumanAction();return;}
+ match.message='ابتدا یک تاس از دسته انتخاب کن یا قابلیت پادشاه را بزن.';renderGame();}
+function removeFromHand(owner,card){const h=match.sides[owner].hand;const i=h.findIndex(x=>x.uid===card.uid);if(i>=0)h.splice(i,1)}
+function deployCard(owner,card,index){removeFromHand(owner,card);card.owner=owner;card._exitTriggered=false;card._entryAnimation=true;match.board[index]=card;if(typeOf(card)==='king')match.sides[owner].kingPlaced=true;addGameLog(codeTitle(card.code)+' با عدد '+fa(card.hp)+' وارد خانه '+fa(index+1)+' شد.',owner);if(!completesCalculableLineAt(index))onEnter(card,index);checkLines();syncJade();}
+function completesCalculableLineAt(index){const lines=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8]];return lines.some(line=>line.includes(index)&&line.every(i=>match.board[i])&&!line.some(i=>isPotion(match.board[i])||match.board[i].shield));}
+function onEnter(piece,index){const owner=piece.owner;
+ // Brown die gives a continuing +1 bonus to allied non-potions.
+ if(piece.code==='sp_brown'){match.board.forEach(p=>{if(p&&p.owner===owner&&!isPotion(p)&&p.hp<6){p.hp++;p.aura=(p.aura||0)+1;}})}
+ else {const browns=match.board.filter(p=>p&&p.owner===owner&&p.code==='sp_brown').length;for(let n=0;n<browns;n++)if(!isPotion(piece)&&piece.hp<6){piece.hp++;piece.aura=(piece.aura||0)+1;}}
+ if(!isPotion(piece)&&typeOf(piece)!=='king'){const creams=match.board.filter(p=>p&&p.owner===owner&&p.code==='sp_cream');creams.forEach(cream=>{const targets=match.board.map((p,i)=>p&&p.owner!==owner?i:-1).filter(i=>i>=0);if(targets.length)damageAt(randomOf(targets),1,cream);});}
+ if(piece.code==='sp_gray'){const enemy=match.sides[1-owner],pots=enemy.hand.filter(p=>isPotion(p));if(pots.length){const stolen=randomOf(pots);enemy.hand.splice(enemy.hand.indexOf(stolen),1);stolen.owner=owner;match.sides[owner].hand.push(stolen);}}
+ if(piece.code==='sp_maroon'){const allies=match.board.filter(p=>p&&p.owner===owner).length;piece.hp-=allies;if(piece.hp<=0){const ix=match.board.indexOf(piece);if(ix>=0)removeFromBoard(ix,'death');}}
+ if(!isPotion(piece)){const watchers=match.board.filter(p=>p&&p.owner===owner&&p.code==='sp_darkgreen'&&p.hp===piece.hp);if(watchers.length){const king=match.board.find(p=>p&&p.owner===owner&&typeOf(p)==='king');if(king)king.hp=Math.min(6,king.hp+2*watchers.length);}}
+ if(piece.code==='sp_purple'){const candidates=match.board.map((p,i)=>p&&p!==piece?i:-1).filter(i=>i>=0);if(owner===0&&candidates.length){actionMode={kind:'purple',piece};match.message='تاس بنفش وارد شد؛ تاسی را انتخاب کن تا جان‌ها جابه‌جا شوند.';}else if(candidates.length){const t=match.board[randomOf(candidates)];const h=piece.hp;piece.hp=t.hp;t.hp=h;}}
+ if(isPotion(piece)&&piece.code==='pot_red'){};
+ if(owner===1&&piece.code==='pot_blue'){};
+ if(owner===0||owner===1){const reds=match.board.map((p,i)=>p&&p.owner!==owner&&p.code==='pot_red'?i:-1).filter(i=>i>=0);if(piece.owner!==owner||!isPotion(piece)){if(typeOf(piece)!=='king'&&piece.hp>=4&&piece.hp<=6){const red=reds.length?reds[0]:-1;if(red>=0){const rp=match.board[red],power=rp.hp;removeFromBoard(red,'death');damageAt(match.board.indexOf(piece),power,rp);}}}}
+ syncJade();}
+function afterHumanAction(){if(!match||match.over)return;logCurrentMessage(0);match.actions--;if(checkMatchEnd())return;if(match.actions<=0&&!actionMode){endSideTurn(0);}else renderGame();}
+function endSideTurn(owner){if(!match||match.over)return;logCurrentMessage(owner);applyYellowEndTurn(owner);checkLines();syncJade();if(checkMatchEnd())return;match.turn=1-owner;match.actions=1;selectedPiece=null;actionMode=null;if(match.turn===1)match.message='نوبت بازیکن تمام شد؛ ربات ۳ ثانیه صبر می‌کند و سپس زمین را تحلیل و حرکتش را انتخاب می‌کند.';else match.message='نوبت ربات تمام شد؛ حالا نوبت بازیکن است.';renderGame();if(match.turn===1)setTimeout(botTurn,3000);}
+function applyYellowEndTurn(owner){const yellows=match.board.map((p,i)=>p&&p.owner===owner&&p.code==='pot_yellow'?i:-1).filter(i=>i>=0);yellows.forEach(i=>{if(!match.board[i])return;match.board[i].hp-=2;if(match.board[i].hp<=0)removeFromBoard(i,'death');});}
+function botUseKing(){
+ const side=match.sides[1],ki=boardKingIndex(1);if(ki<0||side.kingUses>=3)return false;
+ const king=match.board[ki],kind=king.code.replace('king_',''),path=getPathIndices(ki);
+ const own=path.map(i=>({i,p:match.board[i]})).filter(x=>x.p&&x.p.owner===1&&!isPotion(x.p));
+ const enemy=path.map(i=>({i,p:match.board[i]})).filter(x=>x.p&&x.p.owner===0&&!isPotion(x.p)&&typeOf(x.p)!=='king');
+ let done=false;
+ if(kind==='green'&&own.some(x=>x.p.hp<6)){const t=own.filter(x=>x.p.hp<6).sort((a,b)=>((b.p.hp<3?3:0)+(typeOf(b.p)==='king'?4:0))-((a.p.hp<3?3:0)+(typeOf(a.p)==='king'?4:0)))[0];t.p.hp=Math.min(6,t.p.hp+2);done=true;}
+ else if(kind==='color'&&enemy.length){const t=enemy.slice().sort((a,b)=>a.p.hp-b.p.hp)[0],dest=match.board.map((p,i)=>p&&i!==t.i?i:-1).filter(i=>i>=0),empty=match.board.map((p,i)=>!p?i:-1).filter(i=>i>=0),choices=[...empty,...dest];if(choices.length){let ranked;if(match.aiLevel===4){const base=aiClone();ranked=choices.map(j=>{const test=JSON.parse(JSON.stringify(base)),other=test.board[j];test.board[j]=test.board[t.i];test.board[t.i]=other;return {j,score:aiEvaluate(test)};}).sort((a,b)=>b.score-a.score);}else{ranked=choices.map(j=>{const copy=match.board.slice(),other=copy[j];copy[j]=t.p;copy[t.i]=other;const totals=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8]].filter(line=>line.every(x=>copy[x])&&!line.some(x=>isPotion(copy[x])||copy[x].shield)).map(line=>{const z=[0,0];line.forEach(x=>z[copy[x].owner]+=copy[x].hp);return z[1]-z[0]});return {j,score:totals.reduce((a,v)=>a+v,0)};}).sort((a,b)=>b.score-a.score);}const j=ranked[0].j,other=match.board[j];match.board[j]=t.p;match.board[t.i]=other;done=true;}}
+ else if(kind==='black'){const targets=own.filter(x=>x.p!==king&&typeOf(x.p)!=='king');if(targets.length&&king.hp<6){const t=targets.sort((a,b)=>b.p.hp-a.p.hp)[0];king.hp=Math.min(6,king.hp+t.p.hp);match.board[t.i]=null;returnToHand(t.p);done=true;}}
+ else if(kind==='white'&&enemy.length){enemy.sort((a,b)=>b.p.hp-a.p.hp)[0].p.hp=2;done=true;}
+ else if(kind==='red'&&enemy.length){const t=enemy.slice().sort((a,b)=>a.p.hp-b.p.hp)[0];damageAt(t.i,1,king);done=true;}
+ else if(kind==='blue'){const targets=side.grave.map((p,i)=>({p,i})).filter(x=>!isPotion(x.p)&&typeOf(x.p)!=='king');if(targets.length){const t=targets.sort((a,b)=>(a.p.code==='normal'?1:0)-(b.p.code==='normal'?1:0))[0];side.grave.splice(t.i,1);t.p.hp=1;t.p.presetHp=1;side.hand.push(t.p);done=true;}}
+ else if(kind==='yellow'&&side.rubies>=2&&side.hand.filter(p=>typeOf(p)!=='king').length>=2){
+   const ranked=side.hand.filter(p=>typeOf(p)!=='king').sort((a,b)=>(b.code==='sp_brown'?5:b.code==='sp_cream'?4:b.code==='normal'?0:2)-(a.code==='sp_brown'?5:a.code==='sp_cream'?4:a.code==='normal'?0:2));
+   const cards=ranked.slice(0,Math.min(4,ranked.length));let plan=null;
+   for(let a=0;a<cards.length&&!plan;a++)for(let b=a+1;b<cards.length&&!plan;b++){
+    const c1=cards[a],c2=cards[b],empty=match.board.map((p,i)=>!p?i:-1).filter(i=>i>=0);
+    const needsPlace=c=>c.code!=='pot_green'&&c.code!=='pot_blue';
+    if((needsPlace(c1)&&!empty.length)||(needsPlace(c2)&&empty.length<(needsPlace(c1)?2:1)))continue;
+    const targetFor=c=>c.code==='pot_green'||c.code==='pot_blue'?match.board.map((p,i)=>p&&p.owner===1&&!isPotion(p)&&(!p.shield||c.code!=='pot_blue')?i:-1).filter(i=>i>=0)[0]:null;
+    if((!needsPlace(c1)&&targetFor(c1)==null)||(!needsPlace(c2)&&targetFor(c2)==null))continue;
+    plan={cards:[c1,c2],indices:empty.slice(0,2),targets:[targetFor(c1),targetFor(c2)]};
+   }
+   if(plan){for(let n=0;n<2;n++){const card=plan.cards[n];rollHp(card);if(card.code==='pot_green'||card.code==='pot_blue'){const t=match.board[plan.targets[n]];removeFromHand(1,card);if(card.code==='pot_green')t.hp=Math.min(6,t.hp+card.hp);else t.shield=card;}else deployCard(1,card,plan.indices.shift());}side.rubies-=2;done=true;}
+ }
+ if(!done)return false;
+ side.kingUses++;addGameLog('ربات از قابلیت پادشاه '+codeTitle(king.code)+' استفاده کرد ('+fa(side.kingUses)+' از ۳ بار).',1);checkLines();syncJade();match.message='ربات از قابلیت پادشاه خود استفاده کرد.';return true;
+}
+function aiPerformKingAction(owner,action){
+ const side=match.sides[owner],ki=boardKingIndex(owner);if(ki<0||side.kingUses>=3)return false;
+ const king=match.board[ki],kind=king.code.replace('king_',''),path=getPathIndices(ki);let done=false;
+ if(action.mode==='green'){
+  const p=match.board[action.target];if(p&&p.owner===owner&&!isPotion(p)){p.hp=Math.min(6,p.hp+2);done=true;}
+ }else if(action.mode==='color'){
+  const target=match.board[action.target];if(target&&target.owner!==owner&&!isPotion(target)&&typeOf(target)!=='king'&&action.dest!==action.target){const other=match.board[action.dest]||null;match.board[action.dest]=target;match.board[action.target]=other;done=true;}
+ }else if(action.mode==='black'){
+  const p=match.board[action.target];if(p&&p.owner===owner&&!isPotion(p)&&p!==king){king.hp=Math.min(6,king.hp+p.hp);match.board[action.target]=null;returnToHand(p);done=true;}
+ }else if(action.mode==='white'){
+  const p=match.board[action.target];if(p&&p.owner!==owner&&!isPotion(p)&&typeOf(p)!=='king'){p.hp=2;done=true;}
+ }else if(action.mode==='red'){
+  const p=match.board[action.target];if(p&&p.owner!==owner&&!isPotion(p)&&typeOf(p)!=='king'){damageAt(action.target,1,king);done=true;}
+ }else if(action.mode==='blue'){
+  const p=side.grave[action.graveIndex];if(p&&!isPotion(p)&&typeOf(p)!=='king'){side.grave.splice(action.graveIndex,1);p.hp=1;p.presetHp=1;p._exitTriggered=false;side.hand.push(p);done=true;}
+ }else if(action.mode==='yellowPairPlace'){
+  const c1=side.hand.find(x=>x.uid===action.uid1),c2=side.hand.find(x=>x.uid===action.uid2);if(c1&&c2&&c1!==c2){const placeOrUse=(card,index,target,hp)=>{if(hp!=null)card.hp=hp;else rollHp(card);if(card.code==='pot_green'||card.code==='pot_blue'){const t=match.board[target];if(!t||t.owner!==owner||isPotion(t)||(card.code==='pot_blue'&&t.shield))return false;removeFromHand(owner,card);if(card.code==='pot_green')t.hp=Math.min(6,t.hp+card.hp);else t.shield=card;return true;}if(index==null||match.board[index])return false;deployCard(owner,card,index);return true;};const first=placeOrUse(c1,action.index1,action.target1,action.hp1);const second=first&&placeOrUse(c2,action.index2,action.target2,action.hp2);if(first&&second){side.rubies-=2;done=true;}}
+ }else if(action.mode==='yellowPlace'){
+  const card=side.hand.find(x=>x.uid===action.uid);if(card&&typeOf(card)!=='king'&&!match.board[action.index]){if(action.hp!=null)card.hp=action.hp;else rollHp(card);side.rubies-=2;deployCard(owner,card,action.index);done=true;}
+ }else if(action.mode==='yellowGreen'||action.mode==='yellowBlue'){
+  const card=side.hand.find(x=>x.uid===action.uid),target=match.board[action.target];if(card&&target&&target.owner===owner&&!isPotion(target)&&(action.mode!=='yellowBlue'||!target.shield)){
+   if(action.hp!=null)card.hp=action.hp;else rollHp(card);removeFromHand(owner,card);if(action.mode==='yellowGreen')target.hp=Math.min(6,target.hp+card.hp);else target.shield=card;side.rubies-=2;done=true;
+  }
+ }
+ if(!done)return false;side.kingUses++;checkLines();syncJade();return true;
+}
+function aiKingCandidates(state,owner){
+ const side=state.sides[owner],ki=state.board.findIndex(p=>p&&p.owner===owner&&typeOf(p)==='king');if(ki<0||side.kingUses>=3)return [];
+ const king=state.board[ki],kind=king.code.replace('king_',''),path=getPathIndices(ki),out=[],b=state.board;
+ const add=(a)=>out.push({kind:'king',...a});
+ if(kind==='green')path.forEach(i=>{const p=b[i];if(p&&p.owner===owner&&!isPotion(p)&&p.hp<6)add({mode:'green',target:i});});
+ if(kind==='color')path.forEach(i=>{const p=b[i];if(p&&p.owner!==owner&&!isPotion(p)&&typeOf(p)!=='king')b.forEach((q,d)=>{if(d!==i)add({mode:'color',target:i,dest:d});});});
+ if(kind==='black'&&king.hp<6)path.forEach(i=>{const p=b[i];if(p&&p.owner===owner&&!isPotion(p)&&p!==king)add({mode:'black',target:i});});
+ if(kind==='white'||kind==='red')path.forEach(i=>{const p=b[i];if(p&&p.owner!==owner&&!isPotion(p)&&typeOf(p)!=='king')add({mode:kind,target:i});});
+ if(kind==='blue')side.grave.forEach((p,i)=>{if(!isPotion(p)&&typeOf(p)!=='king')add({mode:'blue',graveIndex:i});});
+ if(kind==='yellow'&&side.rubies>=2){
+  const empty=b.map((p,i)=>p?-1:i).filter(i=>i>=0),cards=side.hand.filter(p=>typeOf(p)!=='king').slice(0,5);
+  for(let a=0;a<cards.length;a++)for(let z=a+1;z<cards.length;z++){
+   const c1=cards[a],c2=cards[z],pot1=c1.code==='pot_green'||c1.code==='pot_blue',pot2=c2.code==='pot_green'||c2.code==='pot_blue';
+   const targets1=pot1?b.map((p,i)=>p&&p.owner===owner&&!isPotion(p)&&(c1.code!=='pot_blue'||!p.shield)?i:-1).filter(i=>i>=0):[null];
+   const targets2=pot2?b.map((p,i)=>p&&p.owner===owner&&!isPotion(p)&&(c2.code!=='pot_blue'||!p.shield)?i:-1).filter(i=>i>=0):[null];
+   for(const t1 of targets1)for(const t2 of targets2){if((pot1&&!t1&&t1!==0)||(pot2&&!t2&&t2!==0))continue;
+    if(!pot1&&!pot2){for(let x=0;x<empty.length;x++)for(let y=0;y<empty.length;y++)if(x!==y)add({mode:'yellowPairPlace',uid1:c1.uid,uid2:c2.uid,index1:empty[x],index2:empty[y],hp1:c1.hp==null?4:c1.hp,hp2:c2.hp==null?4:c2.hp});}
+    else if(pot1&&!pot2){for(const j of empty)add({mode:'yellowPairPlace',uid1:c1.uid,uid2:c2.uid,target1:t1,index2:j,hp1:c1.hp==null?4:c1.hp,hp2:c2.hp==null?4:c2.hp});}
+    else if(!pot1&&pot2){for(const i of empty)add({mode:'yellowPairPlace',uid1:c1.uid,uid2:c2.uid,index1:i,target2:t2,hp1:c1.hp==null?4:c1.hp,hp2:c2.hp==null?4:c2.hp});}
+    else add({mode:'yellowPairPlace',uid1:c1.uid,uid2:c2.uid,target1:t1,target2:t2,hp1:c1.hp==null?4:c1.hp,hp2:c2.hp==null?4:c2.hp});
+   }
+  }
+ }
+ return out;
+}
+function ai4TacticalAwareness(state){
+ const b=state.board,lines=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8]];
+ let score=0;
+ const sign=owner=>owner===1?1:-1;
+ const aliveTargets=(owner)=>b.map((p,i)=>({p,i})).filter(x=>x.p&&x.p.owner===owner&&!isPotion(x.p)&&typeOf(x.p)!=='king');
+ for(let owner=0;owner<2;owner++){
+  const side=state.sides[owner],sg=sign(owner),ki=b.findIndex(p=>p&&p.owner===owner&&typeOf(p)==='king');
+  const king=ki>=0?b[ki]:null,remaining=Math.max(0,3-(side.kingUses||0));
+  if(king&&remaining){
+   const path=getPathIndices(ki),own=path.map(i=>({p:b[i],i})).filter(x=>x.p&&x.p.owner===owner&&!isPotion(x.p));
+   const enemies=path.map(i=>({p:b[i],i})).filter(x=>x.p&&x.p.owner!==owner&&!isPotion(x.p)&&typeOf(x.p)!=='king');
+   const kind=king.code.replace('king_','');
+   let potential=0;
+   if(kind==='green')potential=own.reduce((n,x)=>n+Math.min(2,6-(x.p.hp||0))*((x.p.hp||0)<=2?2.2:1),0);
+   if(kind==='black')potential=own.filter(x=>x.p!==king).reduce((n,x)=>n+Math.min(x.p.hp||0,6-(king.hp||0))*1.25,0);
+   if(kind==='white'||kind==='red'||kind==='color')potential=0;
+   if(kind==='blue')potential=side.grave.filter(p=>!isPotion(p)&&typeOf(p)!=='king').length*5;
+   if(kind==='yellow'&&(side.rubies||0)>=2)potential=side.hand.filter(p=>typeOf(p)!=='king').length*4;
+   score+=sg*Math.min(22,potential)*(remaining/3);
+   // Evaluate the opposing king's diagonal reach as a real threat to fragile pieces.
+   for(const x of enemies){
+    let danger=0;
+    if(kind==='red')danger=(x.p.hp<=1?16:x.p.hp<=2?11:6);
+    else if(kind==='white')danger=x.p.hp>2?Math.min(13,(x.p.hp-2)*3):0;
+    else if(kind==='color')danger=7+(lines.filter(line=>line.includes(x.i)&&line.filter(i=>b[i]&&b[i].owner===owner).length>=1).length*2);
+    if(x.p.shield)danger*=.35;
+    score+=sg*danger*(remaining/3);
+   }
+  }
+  // Hand-held potions are strategic options, not merely reserve pieces.
+  const green=side.hand.filter(p=>p.code==='pot_green').length;
+  const blue=side.hand.filter(p=>p.code==='pot_blue').length;
+  const red=side.hand.filter(p=>p.code==='pot_red').length;
+  const yellow=side.hand.filter(p=>p.code==='pot_yellow').length;
+  const ownUnits=aliveTargets(owner),enemyUnits=aliveTargets(1-owner);
+  const injured=ownUnits.filter(x=>(x.p.hp||0)<6).length;
+  const unshielded=ownUnits.filter(x=>!x.p.shield).length;
+  const enemyDeployables=state.sides[1-owner].hand.filter(p=>typeOf(p)!=='king').length;
+  score+=sg*(green*Math.min(8,injured*2.2)+blue*Math.min(7,unshielded*1.7)+red*Math.min(9,enemyDeployables*1.8)+yellow*Math.min(8,enemyUnits.length*1.3));
+  // Potions already on the board: red punishes incoming high-health dice; yellow is a ticking
+  // threat whose eventual burst is judged by how many units of each side it can hit.
+  b.forEach((p,i)=>{
+   if(!p||p.owner!==owner)return;
+   if(p.code==='pot_red')score+=sg*Math.min(12,enemyDeployables*2.4+(enemyUnits.length?2:0));
+   if(p.code==='pot_yellow'){
+    const enemyCount=b.filter(q=>q&&q.owner!==owner&&typeOf(q)!=='king').length;
+    const ownCount=b.filter(q=>q&&q.owner===owner&&q!==p&&typeOf(q)!=='king').length;
+    score+=sg*(enemyCount*2.1-ownCount*1.5+(p.hp<=2?5:0));
+   }
+  });
+ }
+ return score;
+}
+function aiEvaluate(state){if(state&&typeof state==='object'&&aiEvalCache.has(state))return aiEvalCache.get(state);const score=aiEvaluateUncached(state);if(state&&typeof state==='object')aiEvalCache.set(state,score);return score;}
+function aiEvaluateUncached(state){
+ const b=state.board,lines=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8]];let score=0;
+ const alive=owner=>state.sides[owner].hand.filter(p=>typeOf(p)!=='king').length+b.filter(p=>p&&p.owner===owner&&typeOf(p)!=='king').length;
+ const botAlive=alive(1),humanAlive=alive(0);
+ if(botAlive===0&&humanAlive===0)return 0;if(botAlive===0)return -1000000;if(humanAlive===0)return 1000000;
+ const sign=owner=>owner===1?1:-1;
+ for(const line of lines){
+  const row=line.map(i=>b[i]);if(row.some(p=>p&&(isPotion(p)||p.shield)))continue;
+  const mine=row.filter(p=>p&&p.owner===1),theirs=row.filter(p=>p&&p.owner===0),empty=3-mine.length-theirs.length;
+  const mh=mine.reduce((a,p)=>a+(p.hp||0),0),th=theirs.reduce((a,p)=>a+(p.hp||0),0);
+  if(!empty){score+=(mh>th?420:mh<th?-420:0)+(mh-th)*8;continue;}
+  if(mine.length&&!theirs.length)score+=(mine.length===2?72:18)+(mh*2.1);
+  if(theirs.length&&!mine.length)score-=(theirs.length===2?82:20)+(th*2.3);
+  if(mine.length&&theirs.length)score+=(mh-th)*2.8+(mine.length-theirs.length)*7;
+  // Empty cell is strategically dangerous when either side can complete a line next.
+  if(empty===1&&mine.length===2)score+=38;
+  if(empty===1&&theirs.length===2)score-=46;
+ }
+ for(let i=0;i<9;i++){
+  const p=b[i];if(!p)continue;const sg=sign(p.owner),hp=p.hp||0;
+  score+=sg*(3+hp*1.25);
+  if(typeOf(p)==='king'){
+   const center=i===4?26:([0,2,6,8].includes(i)?10:0);
+   score+=sg*(24+hp*3+center);
+   // Protect the king from imminent completed lines and from low-health exposure.
+   const exposed=lines.filter(line=>line.includes(i)).filter(line=>line.some(j=>b[j]&&b[j].owner!==p.owner)&&line.filter(j=>b[j]&&b[j].owner!==p.owner).length>=2).length;
+   score-=sg*(exposed*34+(hp<=2?18:0));
+  }
+  if(i===4)score+=sg*9;else if([0,2,6,8].includes(i))score+=sg*4;
+  if(p.shield)score+=sg*(12+(p.shield.hp||0)*2);
+  const ability={sp_brown:15,sp_cream:12,sp_stripe:17,sp_pink:12,sp_orange:10,sp_darkgreen:9,sp_maroon:8,sp_jade:7,sp_gray:6,sp_purple:8};
+  score+=sg*(ability[p.code]||0);
+  // Potential value of triggered effects and vulnerable enemy targets.
+  if(p.code==='sp_orange'){const targets=b.filter(q=>q&&q.owner!==p.owner&&typeOf(q)!=='king').length;score+=sg*targets*2.5;}
+  if(p.code==='sp_pink'){const liveEnemies=b.filter(q=>q&&q.owner!==p.owner&&!isPotion(q)).length;score+=sg*liveEnemies*1.8;}
+  if(p.code==='sp_brown')score+=sg*b.filter(q=>q&&q.owner===p.owner&&!isPotion(q)).length*2;
+ }
+ for(const side of state.sides){
+  const sg=sign(side.owner);score+=sg*side.hand.length*5.8;score-=sg*side.grave.length*2.6;score+=sg*side.rubies*3.5;score-=sg*side.kingUses*2.2;
+  // Hand composition and future tactical options.
+  side.hand.forEach(card=>{const val={sp_brown:5,sp_cream:4,sp_stripe:6,sp_orange:3,sp_pink:4,sp_maroon:2,pot_green:2,pot_blue:3}[card.code]||0;score+=sg*val;});
+ }
+ // Count immediate tactical threats in both directions.
+ for(const line of lines){const cells=line.map(i=>b[i]);if(cells.some(p=>p&&(isPotion(p)||p.shield)))continue;for(const owner of [0,1]){const own=cells.filter(p=>p&&p.owner===owner),opp=cells.filter(p=>p&&p.owner!==owner);if(own.length===2&&!opp.length&&cells.some(p=>!p))score+=sign(owner)*34;}}
+ // Player-style adaptation: penalize predictable preferred cells and repeatedly used dice.
+ if(state.aiLevel===4&&state.humanHistory&&state.humanHistory.length>=2){
+  const recent=state.humanHistory.slice(-8),cellCounts={},codeCounts={};recent.forEach(x=>{cellCounts[x.index]=(cellCounts[x.index]||0)+1;codeCounts[x.code]=(codeCounts[x.code]||0)+1;});
+  Object.entries(cellCounts).forEach(([idx,n])=>{if(b[Number(idx)]&&b[Number(idx)].owner===0)score-=Math.min(18,n*2.5);});
+  const favored=Object.keys(codeCounts).sort((a,b)=>codeCounts[b]-codeCounts[a])[0];if(favored)b.forEach(p=>{if(p&&p.owner===0&&p.code===favored)score-=3;});
+ }
+ if(state.aiLevel===4)score+=ai4TacticalAwareness(state);
+ return score;
+}
+function aiClone(){return JSON.parse(JSON.stringify({...match,eventLog:[]}));}
+function aiApplyCandidateRaw(state,action,owner){
+ const saved=match,savedMode=actionMode,savedSelected=selectedPiece;
+ aiSimulationDepth++;
+ try{
+  // eventLog is display-only. Excluding it avoids copying up to 100 log entries for every hypothetical move.
+  match=JSON.parse(JSON.stringify({...state,eventLog:[]}));actionMode=null;selectedPiece=null;
+  const side=match.sides[owner];
+  if(action.kind==='place'){
+   const card=side.hand.find(p=>p.uid===action.uid);if(!card||match.board[action.index])return null;
+   if(action.hp!=null)card.hp=action.hp;else rollHp(card);deployCard(owner,card,action.index);
+  }else if(action.kind==='potion'){
+   const card=side.hand.find(p=>p.uid===action.uid),target=match.board[action.target];if(!card||!target||target.owner!==owner)return null;
+   if(action.hp!=null)card.hp=action.hp;else rollHp(card);removeFromHand(owner,card);if(card.code==='pot_green')target.hp=Math.min(6,target.hp+card.hp);else if(card.code==='pot_blue'&&!target.shield)target.shield=card;else return null;syncJade();
+  }else if(action.kind==='stripe'||action.kind==='normal_attack'){
+   const source=match.board[action.source],target=match.board[action.target];if(!source||!target)return null;
+   const amount=source.hp<=3?1:2;const actual=Math.min(amount,Math.max(0,target.shield?target.shield.hp:target.hp));damageAt(action.target,amount,source);if(action.kind==='stripe')source.hp=Math.min(6,source.hp+actual);
+  }else if(action.kind==='king'){
+   if(!aiPerformKingAction(owner,action))return null;
+  }
+  checkLines();applyYellowEndTurn(owner);checkLines();syncJade();
+  return match;
+ }finally{
+  match=saved;actionMode=savedMode;selectedPiece=savedSelected;aiSimulationDepth--;
+ }
+}
+function aiApplyCandidate(state,action,owner){const originalRandom=Math.random;let seed=2166136261;const source=JSON.stringify([state.board,state.sides.map(x=>({hand:x.hand.map(p=>[p.code,p.hp]),grave:x.grave.map(p=>p.code),rubies:x.rubies})),action,owner]);for(let i=0;i<source.length;i++){seed^=source.charCodeAt(i);seed=Math.imul(seed,16777619);}Math.random=function(){seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};try{return aiApplyCandidateRaw(state,action,owner);}finally{Math.random=originalRandom;}}
+function ai4AdaptiveBias(state,index,lines){const history=state.humanHistory||[];if(history.length<2)return 0;const recent=history.slice(-6),counts={};recent.forEach(x=>counts[x.index]=(counts[x.index]||0)+1);const favorite=Number(Object.keys(counts).sort((a,b)=>counts[b]-counts[a])[0]),codes={};recent.forEach(x=>codes[x.code]=(codes[x.code]||0)+1);const favoriteCode=Object.keys(codes).sort((a,b)=>codes[b]-codes[a])[0];let bonus=0;for(const line of lines){if(!line.includes(index))continue;const human=line.filter(i=>state.board[i]&&state.board[i].owner===0).length;if(Number.isFinite(favorite)&&line.includes(favorite)){if(human>=2)bonus=Math.max(bonus,30);else if(human===1)bonus=Math.max(bonus,12);}if(favoriteCode&&line.some(i=>state.board[i]&&state.board[i].owner===0&&state.board[i].code===favoriteCode))bonus=Math.max(bonus,8);}return bonus;}
+function ai4PlacementBias(state,action,next){const extraPlace=action&&action.kind==='king'&&(action.mode==='yellowPlace'||action.mode==='yellowPairPlace');if(!next||!action||(action.kind!=='place'&&!extraPlace))return 0;const card=state.sides[1].hand.find(p=>p.uid===action.uid);if(!card)return 0;const index=action.index,lines=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8]];let adaptive=ai4AdaptiveBias(state,index,lines);const filled=lines.some(line=>line.includes(index)&&line.every(i=>i===index||state.board[i])&&!line.some(i=>{const p=i===index?card:state.board[i];return isPotion(p)||p.shield;}));if(filled&&typeOf(card)==='king'){const value=aiEvaluate(next);return value>500000?1000000:-1000000;}if(filled){const value=aiEvaluate(next);if(value>500000)return 1000000;}if(typeOf(card)!=='king'){
+  const placedHp=action.hp==null?(card.hp==null?4:card.hp):action.hp;
+  const humanKing=state.board.findIndex(p=>p&&p.owner===0&&typeOf(p)==='king');
+  if(humanKing>=0&&state.sides[0].kingUses<3&&getPathIndices(humanKing).includes(index)){
+   const kingCode=state.board[humanKing].code,kind=kingCode.replace('king_','');
+   const danger=kind==='red'? (placedHp<=1?34:placedHp<=2?24:13) : kind==='white'?(placedHp>2?Math.min(30,(placedHp-2)*7):0) : kind==='color'?18:0;
+   adaptive-=danger;
+  }
+  const ownKing=state.board.findIndex(p=>p&&p.owner===1&&typeOf(p)==='king');
+  if(ownKing>=0&&state.sides[1].kingUses<3&&getPathIndices(ownKing).includes(index)){
+   const ownKind=state.board[ownKing].code.replace('king_','');
+   if(ownKind==='green'&&placedHp<6)adaptive+=7;
+   else if(ownKind==='black'&&state.board[ownKing].hp<6)adaptive+=3;
+  }
+ }
+ if(typeOf(card)==='king'){const centerLines=lines.filter(line=>line.includes(4));const centerWouldComplete=!state.board[4]&&centerLines.some(line=>line.every(i=>i===4||state.board[i])&&!line.some(i=>{const p=i===4?card:state.board[i];return isPotion(p)||p.shield;}));if(!state.board[4]){if(index===4)return 3000+adaptive; if(centerWouldComplete){const zig=[0,8,2,6,1,7,3,5],rank=zig.indexOf(index);return (rank<0?-200:1200-rank*100)+adaptive;}return -120+adaptive;}const order=[0,8,2,6,1,7,3,5],rank=order.indexOf(index);return (rank<0?-100:900-rank*90)+adaptive;}return adaptive;}
+function aiCandidates(state,owner){
+ const side=state.sides[owner],empty=state.board.map((p,i)=>p?-1:i).filter(i=>i>=0),out=[],kingMust=side.hand.some(p=>typeOf(p)==='king')&&!state.board.some(p=>p&&p.owner===owner&&typeOf(p)==='king');
+ const cards=kingMust?side.hand.filter(p=>typeOf(p)==='king'):side.hand.filter(p=>typeOf(p)!=='king');
+ for(const card of cards){
+  const predictedHp=card.hp==null?(owner===1?1+Math.floor(Math.random()*6):4):card.hp;
+  if(card.code==='pot_green'||card.code==='pot_blue'){
+   state.board.forEach((p,target)=>{if(p&&p.owner===owner&&!isPotion(p)&&(!p.shield||card.code!=='pot_blue'))out.push({kind:'potion',uid:card.uid,target,hp:predictedHp});});
+  }else empty.forEach(index=>out.push({kind:'place',uid:card.uid,index,hp:predictedHp}));
+ }
+ if(!kingMust){
+  state.board.forEach((p,source)=>{if(p&&p.owner===owner&&p.code==='sp_stripe')state.board.forEach((q,target)=>{if(q&&q.owner!==owner&&typeOf(q)!=='king'&&areAdjacent(source,target))out.push({kind:'stripe',source,target});});});
+  if(state.aiLevel===4){state.board.forEach((p,source)=>{if(p&&p.owner===owner&&p.code==='normal')state.board.forEach((q,target)=>{if(q&&q.owner!==owner&&typeOf(q)!=='king'&&areAdjacent(source,target))out.push({kind:'normal_attack',source,target});});});out.push(...aiKingCandidates(state,owner));}
+ }
+ return out;
+}
+function ai4RobustScore(state,action,owner){
+ if(action.kind!=='place'&&!(action.kind==='king'&&action.mode==='yellowPlace'))return null;
+ const card=state.sides[owner].hand.find(p=>p.uid===action.uid);if(!card||card.hp!=null)return null;
+ let total=0,count=0;
+ for(let hp=1;hp<=6;hp++){const test={...action,hp},next=aiApplyCandidate(state,test,owner);if(next){total+=aiEvaluate(next);count++;}}
+ return count?total/count:null;
+}
+function aiChooseMove(level){
+ const root=aiClone(),first=aiCandidates(root,1);if(!first.length)return null;
+ const beam=level===4?7:5,depth=level===4?4:level===3?3:2;
+ function rankActions(state,owner,actions,robustLayer=false){
+  return actions.map(action=>{
+   const next=aiApplyCandidate(state,action,owner);if(!next)return null;
+   let score=aiEvaluate(next),bias=level===4&&owner===1?ai4PlacementBias(state,action,next):0;
+   if(level===4&&(robustLayer||owner===1&&robustLayer===true)){const robust=ai4RobustScore(state,action,owner);if(robust!==null)score=score*.35+robust*.65;}
+   return {action,next,score,bias};
+  }).filter(Boolean).sort((a,b)=>owner===1?(b.score+b.bias)-(a.score+a.bias):(a.score-a.bias)-(b.score-b.bias)).slice(0,beam);
+ }
+ function search(state,plies,maximizing,alpha,beta,robustLayer=false){
+  if(plies<=0)return aiEvaluate(state);
+  const owner=maximizing?1:0,actions=aiCandidates(state,owner);if(!actions.length)return aiEvaluate(state);
+  const ranked=rankActions(state,owner,actions,robustLayer);if(!ranked.length)return aiEvaluate(state);
+  let best=maximizing?-Infinity:Infinity;
+  for(const item of ranked){const value=search(item.next,plies-1,!maximizing,alpha,beta,false);if(maximizing){best=Math.max(best,value);alpha=Math.max(alpha,best);}else{best=Math.min(best,value);beta=Math.min(beta,best);}if(beta<=alpha)break;}
+  return best;
+ }
+ const ranked=rankActions(root,1,first,true);let chosen=ranked[0],best=-Infinity;
+ for(const item of ranked){const value=depth===1?item.score:search(item.next,depth-1,false,-Infinity,Infinity,true);const adjusted=value+item.score*.035+item.bias;if(adjusted>best){best=adjusted;chosen=item;}}
+ return chosen?chosen.action:first[0];
+}
+function aiExecute(action){
+ if(!action)return false;const side=match.sides[1];
+ if(action.kind==='king'){const ok=aiPerformKingAction(1,action);if(ok)match.message='حریف با تحلیل شبه‌انسانی از قابلیت پادشاه استفاده کرد.';return ok;}
+ if(action.kind==='stripe'||action.kind==='normal_attack'){
+  const source=match.board[action.source],target=match.board[action.target],amount=source.hp<=3?1:2;const actual=Math.min(amount,Math.max(0,target.shield?target.shield.hp:target.hp));damageAt(action.target,amount,source);if(action.kind==='stripe')source.hp=Math.min(6,source.hp+actual);match.message=action.kind==='stripe'?'حریف با تاس خط‌دار حمله کرد و '+fa(actual)+' جان گرفت.':'حریف با تاس معمولی به خانهٔ مجاور حمله کرد و '+fa(actual)+' جان کم کرد.';return true;
+ }
+ if(action.kind==='potion'){
+  const card=side.hand.find(p=>p.uid===action.uid),target=match.board[action.target];if(!card||!target)return false;if(action.hp!=null)card.hp=action.hp;else rollHp(card);removeFromHand(1,card);if(card.code==='pot_green')target.hp=Math.min(6,target.hp+card.hp);else target.shield=card;match.message='حریف از معجون خود استفاده کرد.';syncJade();return true;
+ }
+ const card=side.hand.find(p=>p.uid===action.uid);if(!card)return false;if(action.hp!=null)card.hp=action.hp;else rollHp(card);deployCard(1,card,action.index);match.message='حریف '+codeTitle(card.code)+' را وارد خانه '+fa(action.index+1)+' کرد.';return true;
+}
+function botTurn(){
+ if(!match||match.over||match.turn!==1)return;
+ match.message='ربات تحلیل را آغاز کرد؛ در حال بررسی حرکت‌های مجاز و وضعیت زمین...';renderGame();
+ const level=match.aiLevel||1,side=match.sides[1];
+ // Easy opponent deliberately makes mostly random legal moves.
+ if(level===1){
+  let safety=0;while(match.turn===1&&match.actions>0&&!match.over&&safety++<3){if(actionMode)actionMode=null;
+   if(!mustPlaceKing(side)&&Math.random()<0.2&&botUseKing()){match.actions--;if(checkMatchEnd())return;continue;}
+   let card;if(mustPlaceKing(side))card=side.hand.find(p=>typeOf(p)==='king');else{const choices=side.hand.filter(p=>p.code!=='pot_green'&&p.code!=='pot_blue');card=choices.length?randomOf(choices):null;}
+   if(!card){endSideTurn(1);return;}const empty=match.board.map((p,i)=>p?-1:i).filter(i=>i>=0);if(!empty.length){endSideTurn(1);return;}
+   if(card.code==='pot_green'||card.code==='pot_blue'){const targets=match.board.map((p,i)=>p&&p.owner===1&&!isPotion(p)&&(!p.shield||card.code!=='pot_blue')?i:-1).filter(i=>i>=0);if(targets.length){const i=randomOf(targets),t=match.board[i];if(action.hp!=null)card.hp=action.hp;else rollHp(card);removeFromHand(1,card);if(card.code==='pot_green')t.hp=Math.min(6,t.hp+card.hp);else t.shield=card;match.actions--;continue;}card=side.hand.find(p=>p!==card&&p.code!=='pot_green'&&p.code!=='pot_blue')||card;}
+   if(!card)break;rollHp(card);deployCard(1,card,randomOf(empty));match.actions--;if(checkMatchEnd())return;
+  }
+  if(match&&match.turn===1&&!match.over)endSideTurn(1);return;
+ }
+ // Medium and expert opponents evaluate the whole board before acting.
+ if(level!==4&&!mustPlaceKing(side)&&side.kingUses<3){
+  const useChance=level===3?.78:.38;
+  if(Math.random()<useChance&&botUseKing()){match.actions--;if(checkMatchEnd())return;endSideTurn(1);return;}
+ }
+ const move=aiChooseMove(level);
+ if(!move){endSideTurn(1);return;}
+ aiExecute(move);match.actions--;logCurrentMessage(1);if(checkMatchEnd())return;endSideTurn(1);
+}
+function checkLines(){if(!match)return;const lines=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8]];for(const line of lines){const row=line.map(i=>match.board[i]);if(!row.every(Boolean))continue;if(row.some(p=>isPotion(p)||p.shield)){match.message='این ردیف معجون دارد؛ هیچ عددی محاسبه نمی‌شود و تاس‌ها همان‌جا می‌مانند.';continue;}
+ const totals=[0,0];row.forEach(p=>totals[p.owner]+=p.hp);const winner=totals[0]===totals[1]?-1:(totals[0]>totals[1]?0:1);
+ if(winner===-1){addGameLog('ردیف '+line.map(x=>fa(x+1)).join('، ')+' مساوی شد؛ مجموع هر دو طرف '+fa(totals[0])+' بود.',null);line.forEach(i=>{const p=match.board[i];if(!p)return;match.board[i]=null;returnToHand(p);});match.message='ردیف مساوی شد؛ مجموع بازیکن و ربات هر دو '+fa(totals[0])+' بود و تاس‌ها به دسته برگشتند.';}
+ else{line.forEach(i=>{const p=match.board[i];if(!p)return;const side=match.sides[p.owner];if(typeOf(p)==='king'&&p.owner!==winner){const maroon=match.board.find(x=>x&&x.owner===p.owner&&x.code==='sp_maroon');if(maroon){const mi=match.board.indexOf(maroon);removeFromBoard(mi,'death');p.hp=Math.max(1,p.hp);return;}}
+ match.board[i]=null;if(p.owner===winner||typeOf(p)==='king')returnToHand(p,typeOf(p)==='king'&&p.owner!==winner);else sendToGrave(p);});match.message='ردیف '+line.map(x=>fa(x+1)).join('، ')+' محاسبه شد؛ مجموع بازیکن '+fa(totals[0])+' و مجموع ربات '+fa(totals[1])+' بود. برنده این ردیف: '+(winner===0?'بازیکن سبز':'ربات قرمز')+'. تاس‌های بازنده به قبرستان رفتند.';}
+ }
+}
+function returnToHand(piece,died=false){if(!piece)return;const owner=piece.owner;if(piece.code==='sp_brown')removeBrownAura(owner);if(piece.shield){const sh=piece.shield;piece.shield=null;returnToHand(sh,died);}piece.hp=null;piece.presetHp=null;piece.aura=0;match.sides[owner].hand.push(piece);addGameLog(codeTitle(piece.code)+' به دسته '+(owner===0?'بازیکن':'ربات')+(died?' برگشت؛ مرگ محسوب شد و قابلیت خروج فعال شد.':' برگشت.'),owner);if(died)triggerExitEffects(piece);}
+function removeBrownAura(owner){const remaining=match.board.filter(p=>p&&p.owner===owner&&p.code==='sp_brown').length;const affected=match.board.map((p,i)=>({p,i})).filter(x=>x.p&&x.p.owner===owner&&!isPotion(x.p)&&x.p.aura>remaining);affected.forEach(({p,i})=>{if(match.board[i]!==p)return;const loss=p.aura-remaining;p.aura=remaining;p.hp-=loss;if(p.hp<=0)removeFromBoard(i,'death');});}
+function sendToGrave(piece){if(!piece)return;const owner=piece.owner;if(piece.code==='sp_brown')removeBrownAura(owner);if(piece.shield){const sh=piece.shield;piece.shield=null;sendToGrave(sh);}match.sides[owner].grave.push(piece);addGameLog(codeTitle(piece.code)+' به قبرستان '+(owner===0?'بازیکن':'ربات')+' رفت و قابلیت خروج/مرگ آن فعال شد.',owner);triggerExitEffects(piece);syncJade();}
+function triggerExitEffects(piece){if(!piece||piece._exitTriggered)return;piece._exitTriggered=true;const owner=piece.owner;if(piece.code==='sp_orange'){const targets=match.board.map((p,i)=>p&&typeOf(p)!=='king'?i:-1).filter(i=>i>=0);targets.forEach(i=>{if(match.board[i])damageAt(i,2,piece);});}if(piece.code==='pot_yellow'){for(let n=0;n<6;n++){const candidates=match.board.map((p,i)=>p&&typeOf(p)!=='king'?i:-1).filter(i=>i>=0);if(!candidates.length)break;damageAt(randomOf(candidates),1,piece);}}if(!isPotion(piece)){const enemies=match.board.filter(p=>p&&p.owner!==owner&&p.code==='sp_pink');enemies.forEach(p=>p.hp=6);}}
+function removeFromBoard(index,reason='death'){const p=match.board[index];if(!p)return;const owner=p.owner;if(typeOf(p)==='king'){const maroon=match.board.find(x=>x&&x.owner===owner&&x.code==='sp_maroon');if(maroon){const mi=match.board.indexOf(maroon);match.board[mi]=null;sendToGrave(maroon);p.hp=1;return;}match.board[index]=null;returnToHand(p,true);return;}
+ match.board[index]=null;sendToGrave(p);}
+function damageAt(index,amount,source=null){if(index<0||!match.board[index])return;const p=match.board[index],actor=source&&Number.isInteger(source.owner)?source.owner:1-p.owner;if(p.shield){const before=p.shield.hp;p.shield.hp-=amount;addGameLog(codeTitle(p.code)+' در خانه '+fa(index+1)+' ضربه خورد؛ سپر '+fa(before)+' به '+fa(Math.max(0,p.shield.hp))+' رسید.',actor);if(p.shield.hp<=0){const sh=p.shield;p.shield=null;sendToGrave(sh);addGameLog('سپر '+codeTitle(sh.code)+' شکست و از زمین خارج شد.',actor);}return;}
+ const before=p.hp;p.hp-=amount;addGameLog(codeTitle(p.code)+' در خانه '+fa(index+1)+' '+fa(amount)+' آسیب دید؛ جان از '+fa(before)+' به '+fa(Math.max(0,p.hp))+' رسید.',actor);if(match.sides[p.owner].kingCode==='king_yellow'&&!isPotion(p)){const k=boardKingIndex(p.owner);if(k>=0)match.sides[p.owner].rubies++;}
+ if(p.hp<=0){addGameLog(codeTitle(p.code)+' در خانه '+fa(index+1)+' جانش تمام شد و کشته شد.',actor);removeFromBoard(index,'death');}syncJade();}
+function syncJade(){if(!match)return;for(let owner=0;owner<2;owner++){const opp=boardKingIndex(1-owner);if(opp>=0){const hp=match.board[opp].hp;match.board.forEach(p=>{if(p&&p.owner===owner&&p.code==='sp_jade')p.hp=hp;});}}}
+function getPathIndices(kingIndex){if(kingIndex<0)return[];if(kingIndex===4)return[0,2,4,6,8];if([0,8].includes(kingIndex))return[0,4,8];if([2,6].includes(kingIndex))return[2,4,6];return[];}
+function useKing(){if(!match||match.over||match.turn!==0||match.actions<=0||actionMode)return;selectedPiece=null;const side=match.sides[0],ki=boardKingIndex(0);if(ki<0)return match.message='پادشاهت باید در زمین باشد.' ,renderGame();if(side.kingUses>=3)return match.message='از قابلیت پادشاه در این مسابقه سه بار استفاده کرده‌ای.',renderGame();const code=match.board[ki].code;let kind=code.replace('king_','');if(kind==='yellow'&&side.rubies<2)return match.message='برای این قابلیت دست‌کم ۲ یاقوت لازم داری.',renderGame();if(kind==='yellow'&&side.hand.filter(p=>typeOf(p)!=='king').length<2)return match.message='برای این قابلیت باید دست‌کم دو نیروی غیرپادشاه در دسته داشته باشی.',renderGame();actionMode={kind:'king_'+kind,kingIndex:ki,remaining:2};addGameLog('بازیکن قابلیت پادشاه '+codeTitle(code)+' را فعال کرد و هدف آن را انتخاب می‌کند.',0);match.message=kind==='blue'?'یک نیروی مرده را از قبرستان انتخاب کن.':kind==='yellow'?'نیروی اول را از دسته انتخاب کن؛ پس از آن نیروی دوم را انتخاب می‌کنی.':'خانه یا تاس واجد شرایط را انتخاب کن.';renderGame();}
+function areAdjacent(a,b){const ar=Math.floor(a/3),ac=a%3,br=Math.floor(b/3),bc=b%3;return Math.abs(ar-br)+Math.abs(ac-bc)===1;}
+function useAdjacentAttack(index){if(!match||match.over||match.turn!==0||match.actions<=0||actionMode)return;const source=match.board[index];if(!source||source.owner!==0||!['sp_stripe','normal'].includes(source.code))return;const targets=match.board.map((p,i)=>p&&p.owner===1&&typeOf(p)!=='king'&&areAdjacent(index,i)?i:-1).filter(i=>i>=0);if(!targets.length){match.message='در خانه‌های مجاور این تاس، نیروی دشمنِ غیرپادشاهی برای حمله وجود ندارد.';renderGame();return;}selectedPiece=null;actionMode={kind:source.code==='sp_stripe'?'stripe_attack':'normal_attack',sourceIndex:index};match.message=(source.code==='sp_stripe'?'تاس خط‌دار':'تاس معمولی')+' فعال شد؛ یکی از نیروهای دشمنِ غیرپادشاه در خانهٔ مجاور را انتخاب کن.';renderGame();}
+function useStripe(index){return useAdjacentAttack(index);}
+function handleModeCell(i){const mode=actionMode;if(!mode)return;const p=match.board[i];if(mode.kind==='stripe_attack'||mode.kind==='normal_attack'){const source=match.board[mode.sourceIndex],required=mode.kind==='stripe_attack'?'sp_stripe':'normal';if(!source||source.code!==required||source.owner!==0){actionMode=null;renderGame();return;}if(!p||p.owner===0||typeOf(p)==='king'){match.message='یک نیروی دشمنِ غیرپادشاه را در خانهٔ مجاور انتخاب کن.';renderGame();return;}if(!areAdjacent(mode.sourceIndex,i)){match.message='این نیرو در خانهٔ مجاور تاس نیست.';renderGame();return;}const amount=source.hp<=3?1:2;const targetValue=p.shield?p.shield.hp:p.hp;const actual=Math.min(amount,Math.max(0,targetValue));damageAt(i,amount,source);if(mode.kind==='stripe_attack')source.hp=Math.min(6,source.hp+actual);actionMode=null;selectedPiece=null;match.message=(mode.kind==='stripe_attack'?'تاس خط‌دار':'تاس معمولی')+' حمله کرد و '+fa(actual)+' جان از دشمن کم کرد.'+(mode.kind==='stripe_attack'?' و '+fa(actual)+' جان گرفت.':'');syncJade();afterHumanAction();return;}if(mode.kind==='purple'){if(!p||p===mode.piece){match.message='یک تاس دیگر را انتخاب کن.';renderGame();return;}const hp=mode.piece.hp;mode.piece.hp=p.hp;p.hp=hp;actionMode=null;syncJade();match.message='جان دو تاس با موفقیت جابه‌جا شد.';if(match.actions<=0)endSideTurn(0);else renderGame();return;}const king=match.board[mode.kingIndex];if(!king){actionMode=null;renderGame();return;}
+ if(mode.kind==='king_yellow'){match.message='یک نیرو را از دسته انتخاب کن.';renderGame();return;}
+ if(mode.kind==='king_blue'){match.message='یک نیروی مرده را از فهرست قبرستان انتخاب کن.';renderGame();return;}
+ if(mode.kind==='king_color_dest'){const target=match.board[mode.target];if(i===mode.target){match.message='خانه مقصد را انتخاب کن.';renderGame();return;}const other=match.board[i];match.board[mode.target]=other;match.board[i]=target;finishKingUse('مکان تاس دشمن تغییر کرد.');return;}
+ const path=getPathIndices(mode.kingIndex);if(!path.includes(i)){match.message='این تاس در مسیر ضربدری پادشاه نیست.';renderGame();return;}
+ if(mode.kind==='king_green'){if(!p||p.owner!==0||isPotion(p)){match.message='یک تاس خودی غیرمعجون را انتخاب کن.';renderGame();return;}p.hp=Math.min(6,p.hp+2);finishKingUse('دو جان به تاس انتخاب‌شده اضافه شد.');}
+ else if(mode.kind==='king_color'){if(!p||p.owner===0||isPotion(p)||typeOf(p)==='king'){match.message='یک تاس دشمن غیرمعجون و غیرپادشاه را انتخاب کن.';renderGame();return;}actionMode={kind:'king_color_dest',target:i,kingIndex:mode.kingIndex};match.message='حالا خانهٔ مقصد را انتخاب کن؛ اگر پر باشد جای دو تاس عوض می‌شود.';renderGame();}
+ else if(mode.kind==='king_black'){if(!p||p.owner!==0||isPotion(p)||p===king){match.message='یک تاس خودی غیرمعجون به‌جز پادشاه را انتخاب کن.';renderGame();return;}king.hp=Math.min(6,king.hp+p.hp);match.board[i]=null;returnToHand(p);finishKingUse('جان تاس به پادشاه اضافه شد و تاس به دسته برگشت.');}
+ else if(mode.kind==='king_white'){if(!p||p.owner===0||isPotion(p)||typeOf(p)==='king'){match.message='یک تاس دشمن غیرمعجون و غیرپادشاه را انتخاب کن.';renderGame();return;}p.hp=2;finishKingUse('عدد تاس دشمن به ۲ تغییر کرد.');}
+ else if(mode.kind==='king_red'){if(!p||p.owner===0||isPotion(p)||typeOf(p)==='king'){match.message='یک تاس دشمن غیرمعجون و غیرپادشاه را انتخاب کن.';renderGame();return;}damageAt(i,1,king);finishKingUse('یک ضربه به تاس دشمن وارد شد.');}
+}
+function finishKingUse(message){match.sides[0].kingUses++;addGameLog('بازیکن از قابلیت پادشاه '+codeTitle(match.sides[0].kingCode)+' استفاده کرد ('+fa(match.sides[0].kingUses)+' از ۳ بار): '+message,0);actionMode=null;match.message=message;checkLines();syncJade();afterHumanAction();}
+function chooseGrave(idx){if(!actionMode||actionMode.kind!=='king_blue'||match.turn!==0)return;const side=match.sides[0],piece=side.grave[idx];if(!piece||isPotion(piece)||typeOf(piece)==='king')return;side.grave.splice(idx,1);piece.hp=1;piece.presetHp=1;side.hand.push(piece);finishKingUse('نیروی مرده با عدد ۱ به دسته برگشت.');}
+function chooseYellowExtra(uid){const side=match.sides[0],card=side.hand.find(p=>p.uid===uid);if(!card||typeOf(card)==='king')return;rollHp(card);actionMode={kind:'king_yellow_place',card,kingIndex:boardKingIndex(0),remaining:actionMode&&actionMode.remaining||2};match.message=(card.code==='pot_green'||card.code==='pot_blue')?'حالا یک تاس خودی مناسب را برای استفاده از معجون انتخاب کن.':'حالا خانه خالی را برای ورود این نیرو انتخاب کن.';renderGame();}
+function completeYellowKingStep(mode,detail){const side=match.sides[0];if(mode.remaining>1){actionMode={kind:'king_yellow',kingIndex:mode.kingIndex,remaining:mode.remaining-1};match.message=detail+' حالا نیروی دوم را از دسته انتخاب کن.';renderGame();return;}side.rubies-=2;side.kingUses++;actionMode=null;addGameLog('بازیکن با پرداخت ۲ یاقوت، دو نیرو با قابلیت پادشاه زرد وارد/استفاده کرد ('+fa(side.kingUses)+' از ۳ بار).',0);match.message='با پرداخت ۲ یاقوت، هر دو نیروی پادشاه زرد استفاده شدند. '+detail;afterHumanAction();}
+function exitMatch(){
+ if(!match){show('home');return;}
+ if(!match.over){
+  if(!confirm('اگر اکنون از مسابقه خارج شوی، باخت برایت ثبت می‌شود و پاداش برد را نمی‌گیری. آیا مطمئنی؟'))return;
+  finishMatch(1);
+ }
+ match=null;selectedPiece=null;actionMode=null;show('home');
+}
+function checkMatchEnd(){if(!match||match.over)return true;const lost=[0,1].map(owner=>{const hand=match.sides[owner].hand.filter(p=>typeOf(p)!=='king').length;const field=match.board.filter(p=>p&&p.owner===owner&&typeOf(p)!=='king').length;return hand+field===0;});if(lost[0]&&lost[1]){finishMatch(-1);return true;}if(lost[0]){finishMatch(1);return true;}if(lost[1]){finishMatch(0);return true;}return false;}
+function finishMatch(winner){if(match.over)return;match.over=true;match.winner=winner;addGameLog(winner===0?'🏆 بازیکن برنده مسابقه شد.':winner===1?'🏆 ربات برنده مسابقه شد.':'🤝 مسابقه مساوی شد.',null);let lostCode=null;const lostNormalCount=(winner===0||winner===1)?match.sides[0].grave.filter(piece=>piece.code==='normal').length:0;if(winner===0){wins++;rank+=3;coins=Math.min(20,coins+3);if(chestQueue.length<3){const chestType=Math.random()<0.5?'dice':'king';chestQueue.push({type:chestType,readyAt:Date.now()+(chestType==='dice'?30*60000:60*60000)});chestPending=true;match.finishText='🏆 برنده مسابقه: بازیکن! پیروز شدی! ۳ امتیاز رتبه، ۳ سکه و یک '+(chestType==='dice'?'صندوق تاسی':'صندوق پادشاهی')+' به‌صورت شانسی گرفتی. '+(chestType==='dice'?'صندوق تاسی ۳۰ دقیقه':'صندوق پادشاهی ۱ ساعت')+' دیگر آماده می‌شود. ('+fa(chestQueue.length)+'/۳ صندوق)'+(lostNormalCount?' '+fa(lostNormalCount)+' تاس معمولی قبرستانت هم نابود شد.':'');}else{match.finishText='🏆 برنده مسابقه: بازیکن! پیروز شدی! ۳ امتیاز رتبه و ۳ سکه گرفتی؛ چون ۳ صندوق ذخیره داری، صندوق جدیدی اضافه نشد.'+(lostNormalCount?' '+fa(lostNormalCount)+' تاس معمولی قبرستانت هم نابود شد.':'');}}else if(winner===1){losses++;rank--;const eligible=match.roster.filter(code=>code!=='normal');lostCode=randomOf(eligible);match.finishText='💔 برنده مسابقه: ربات! از دست دادی: '+codeTitle(lostCode)+' (به‌صورت تصادفی) و '+fa(lostNormalCount)+' تاس معمولی قبرستان. تاس‌های معمولی خارج از قبرستان و سایر نیروها به موجودی برگشتند.';}else{match.finishText='🤝 نتیجه مسابقه: مساوی؛ نیروهایت به مجموعه برمی‌گردند.';}
+ let remainingNormalLoss=lostNormalCount;const returned={};match.roster.forEach(code=>{if(code==='normal'&&remainingNormalLoss>0){remainingNormalLoss--;return;}if(lostCode&&code===lostCode&&!returned.__lost){returned.__lost=true;return;}owned[code]=(owned[code]||0)+1;});syncInventory();saveGameState();refresh();match.message=match.finishText;renderGame();}
+function endTurn(){if(match&&match.turn===0&&match.actions===0)endSideTurn(0);}
+function saveGameState(){try{chestPending=chestQueue.length>0;chestReadyAt=chestQueue.length?Math.min(...chestQueue.map(c=>c.readyAt)):0;localStorage.setItem('hamleTasiSave',JSON.stringify({coins,owned,wins,losses,rank,chestPending,chestReadyAt,chestQueue,lastCoinAt,preferred}));}catch(e){}}
+function loadGameState(){try{const raw=localStorage.getItem('hamleTasiSave');if(!raw)return;const v=JSON.parse(raw);if(v&&typeof v==='object'){coins=Math.max(0,Math.min(20,Number(v.coins)||0));owned=v.owned&&typeof v.owned==='object'?v.owned:{normal:10};wins=Number(v.wins)||0;losses=Number(v.losses)||0;rank=Number(v.rank)||0;chestQueue=Array.isArray(v.chestQueue)?v.chestQueue.filter(c=>c&&['dice','king'].includes(c.type)&&Number.isFinite(Number(c.readyAt))).slice(0,3).map(c=>({type:c.type,readyAt:Number(c.readyAt)})):(Array.isArray(v.chestReadyTimes)?v.chestReadyTimes.map(Number).filter(x=>Number.isFinite(x)&&x>0).slice(0,3).map(t=>({type:'dice',readyAt:t})):(v.chestPending?[{type:'dice',readyAt:Number(v.chestReadyAt)||Date.now()}]:[]));chestPending=chestQueue.length>0;chestReadyAt=chestQueue.length?Math.min(...chestQueue.map(c=>c.readyAt)):0;lastCoinAt=Number(v.lastCoinAt)||Date.now();preferred=v.preferred&&typeof v.preferred==='object'?{king:v.preferred.king||'',extra1:v.preferred.extra1||'',extra2:v.preferred.extra2||'',extra3:v.preferred.extra3||'',extra4:v.preferred.extra4||''}:{king:'',extra1:'',extra2:'',extra3:'',extra4:''};}}catch(e){}}
+function applyTimedCoins(){const period=6*60*60*1000,now=Date.now();if(now-lastCoinAt>=period){const count=Math.floor((now-lastCoinAt)/period);coins=Math.min(20,coins+count);lastCoinAt+=count*period;saveGameState();}}
+function updateChestUI(){const box=document.getElementById('chestStatus'),btn=document.getElementById('chestButton');if(!box||!btn)return;chestPending=chestQueue.length>0;if(!chestPending){box.textContent='صندوقی نداری. با پیروزی در مسابقه، به‌صورت شانسی صندوق تاسی یا صندوق پادشاهی می‌گیری؛ سقف ذخیره ۳ صندوق است.';btn.disabled=true;btn.textContent='باز کردن صندوق';return;}const now=Date.now(),ready=chestQueue.filter(c=>c.readyAt<=now).length,next=chestQueue.slice().sort((a,b)=>a.readyAt-b.readyAt)[0],diceCount=chestQueue.filter(c=>c.type==='dice').length,kingCount=chestQueue.filter(c=>c.type==='king').length,remaining=Math.max(0,next.readyAt-now),mins=Math.ceil(remaining/60000);box.textContent='🎁 صندوق‌ها: '+fa(chestQueue.length)+' از ۳ | تاسی: '+fa(diceCount)+' | پادشاهی: '+fa(kingCount)+(ready?' | آماده باز شدن: '+fa(ready):' | زمان صندوق بعدی: '+fa(Math.floor(mins/60))+' ساعت و '+fa(mins%60)+' دقیقه');const chosen=chestQueue.find(c=>c.readyAt<=now)||next,cost=chosen.type==='dice'?1:2;btn.disabled=ready===0&&coins<cost;btn.textContent=ready?'باز کردن صندوق آماده':'بازکردن فوری '+(chosen.type==='dice'?'صندوق تاسی | ۱ سکه':'صندوق پادشاهی | ۲ سکه');}
+function showChestRewards(title,codes){const modal=document.getElementById('chestRewardModal'),body=document.getElementById('chestRewardBody');document.getElementById('chestRewardTitle').textContent=title;body.innerHTML='';codes.forEach(code=>{const entry=[...catalog.king,...catalog.special,...catalog.potion,...catalog.normal].find(x=>x[0]===code);const die=document.createElement('div');die.className='die unit-'+code+(code.startsWith('king_')?' king':'')+(code.startsWith('pot_')?' potion':'');die.textContent=code.startsWith('king_')?'♛':code==='normal'?'🎲':code.startsWith('pot_')?'✦':'◆';const wrap=document.createElement('div');wrap.className='chest-reward-item';wrap.append(die);const label=document.createElement('div');label.textContent=entry?entry[1]:codeTitle(code);wrap.append(label);body.append(wrap);});modal.classList.add('open');}
+function closeChestRewards(){document.getElementById('chestRewardModal').classList.remove('open');}
+function openChest(){if(!chestQueue.length)return;const now=Date.now();let index=chestQueue.findIndex(c=>c.readyAt<=now);if(index<0){index=chestQueue.reduce((best,c,i)=>c.readyAt<chestQueue[best].readyAt?i:best,0);const chest=chestQueue[index],cost=chest.type==='dice'?1:2;if(coins<cost)return alert('برای بازکردن فوری این صندوق به '+fa(cost)+' سکه نیاز داری.');if(!confirm('برای بازکردن فوری '+(chest.type==='dice'?'صندوق تاسی، ۱ سکه':'صندوق پادشاهی، ۲ سکه')+' پرداخت شود؟'))return;coins-=cost;}const chest=chestQueue.splice(index,1)[0],rewards=[];if(chest.type==='dice'){owned.normal=(owned.normal||0)+1;rewards.push('normal');const roll=Math.random();const prize=roll<0.5?randomOf(catalog.special.map(x=>x[0])):randomOf(catalog.potion.map(x=>x[0]));owned[prize]=(owned[prize]||0)+1;rewards.push(prize);}else{for(let i=0;i<3;i++){owned.normal=(owned.normal||0)+1;rewards.push('normal');}for(let i=0;i<2;i++){const prize=Math.random()<0.5?randomOf(catalog.special.map(x=>x[0])):randomOf(catalog.potion.map(x=>x[0]));owned[prize]=(owned[prize]||0)+1;rewards.push(prize);}const king=randomOf(catalog.king.map(x=>x[0]));owned[king]=(owned[king]||0)+1;rewards.push(king);}chestPending=chestQueue.length>0;syncInventory();saveGameState();refresh();showChestRewards(chest.type==='dice'?'🎲 جایزه صندوق تاسی':'👑 جایزه صندوق پادشاهی',rewards);}
+
+window.addEventListener('beforeunload',e=>{if(match&&!match.over){e.preventDefault();e.returnValue='';}});
+window.addEventListener('pagehide',()=>{if(match&&!match.over)finishMatch(1);});
+loadGameState();applyTimedCoins();syncInventory();saveGameState();
+refresh();helpTo('basic');setInterval(updateChestUI,15000);setInterval(()=>{const before=coins;applyTimedCoins();if(coins!==before)refresh();},60000);
+</script></body></html>
