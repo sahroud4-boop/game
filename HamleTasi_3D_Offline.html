@@ -28,7 +28,8 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
 (()=> {
 const frame=document.getElementById('gameFrame'),loading=document.getElementById('loading'),toast=document.getElementById('toast');
 // srcdoc در این نسخه به‌صورت URI-encoded در HTML ذخیره شده؛ پیش از bind باید به HTML واقعی تبدیل شود.
-try{const encoded=frame.getAttribute('srcdoc');if(encoded&&encoded.startsWith('%3C'))frame.srcdoc=decodeURIComponent(encoded);}catch(e){loading.textContent='خطا در بازکردن محتوای بازی: '+e.message;}
+let embeddedGameHTML='';
+try{const encoded=frame.getAttribute('srcdoc')||'';embeddedGameHTML=encoded.startsWith('%3C')?decodeURIComponent(encoded):encoded;frame.removeAttribute('srcdoc');}catch(e){loading.textContent='خطا در بازکردن محتوای بازی: '+e.message;}
 let audioCtx=null,musicOn=false,soundOn=true,musicTimer=null,melodyStep=0;
 function audio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}
 function tone(freq,duration=.16,type='sine',gain=.06,delay=0){try{const c=audio(),o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(freq,c.currentTime+delay);g.gain.setValueAtTime(.0001,c.currentTime+delay);g.gain.exponentialRampToValueAtTime(gain,c.currentTime+delay+.015);g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+delay+duration);o.connect(g);g.connect(c.destination);o.start(c.currentTime+delay);o.stop(c.currentTime+delay+duration+.03)}catch(e){}}
@@ -150,9 +151,12 @@ function safeBindInner(){
   loading.textContent='خطا در بارگذاری بازی: '+(e&&e.message?e.message:'خطای ناشناخته');
  }
 }
-frame.addEventListener('load',safeBindInner);
-if(frame.contentDocument&&frame.contentDocument.readyState==='complete')setTimeout(safeBindInner,0);
-else setTimeout(safeBindInner,250);
+frame.addEventListener('load',()=>{bindRetries=0;safeBindInner();});
+// ثبت شنونده پیش از تنظیم srcdoc تا رویداد load هرگز از دست نرود.
+if(embeddedGameHTML){frame.srcdoc=embeddedGameHTML;}else{loading.textContent='محتوای بازی پیدا نشد؛ فایل HTML ناقص است.';}
+setTimeout(()=>{try{const d=frame.contentDocument;if(d&&d.readyState==='complete'&&d.getElementById('home'))safeBindInner();}catch(e){}},500);
+// محافظ: اگر صفحه داخلی فعال نشد، منوی اصلی را آشکار کن و خطا را به‌جای صفحه سیاه نشان بده.
+setTimeout(()=>{try{const d=frame.contentDocument;if(d&&d.body){const home=d.getElementById('home');if(home&&!d.querySelector('.screen.active'))home.classList.add('active');if(!home){loading.textContent='ساختار صفحه بازی ناقص است؛ نسخه دوبعدی را جداگانه اجرا کنید.';loading.style.display='flex';}}}catch(e){loading.textContent='مرورگر اجازه نمایش صفحه داخلی بازی را نداد.';loading.style.display='flex';}},3500);
 function pointerDown(e){drag={x:e.clientX,y:e.clientY,rot:boardGroup.rotation.y,vertical:boardGroup.rotation.x,moved:false};host.setPointerCapture(e.pointerId)}
 function pointerMove(e){if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)>5)drag.moved=true;boardGroup.rotation.y=drag.rot+dx*.008;boardGroup.rotation.x=Math.max(-.65,Math.min(.45,drag.vertical+dy*.004))}
 function pointerUp(e){if(!drag)return;const wasDrag=drag.moved;drag=null;if(wasDrag)return;const rect=renderer.domElement.getBoundingClientRect();pointer.x=((e.clientX-rect.left)/rect.width)*2-1;pointer.y=-((e.clientY-rect.top)/rect.height)*2+1;raycaster.setFromCamera(pointer,camera);const hits=raycaster.intersectObjects(tiles,false);if(hits.length){const index=hits[0].object.userData.index;if(inner&&typeof inner.onCell==='function'){inner.onCell(index);sfx('move')}}}
