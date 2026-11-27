@@ -46,37 +46,84 @@ let scene,camera,renderer,world,boardGroup,pieceGroup,raycaster,pointer,tiles=[]
 function mat(color,metal=.25,rough=.4){return new THREE.MeshStandardMaterial({color,metalness:metal,roughness:rough})}
 function box(parent,w,h,d,material,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m}
 function makeStatue(code,owner,hp){
- const g=new THREE.Group(),green=owner===0,baseColor=green?0x3cbb78:0xd34d4d;
- const main=mat(baseColor,.55,.28),gold=mat(0xd7ad59,.72,.24),dark=mat(green?0x15533b:0x63242b,.35,.48),skin=mat(green?0xc3e4c9:0xf1c4a5,.2,.42);
- const stone=new THREE.Mesh(new THREE.DodecahedronGeometry(.37,1),main);stone.scale.set(1,1.04,.92);stone.position.y=.55;stone.castShadow=true;g.add(stone);
- const torso=new THREE.Mesh(new THREE.CapsuleGeometry(.13,.28,4,8),dark);torso.position.y=1.02;torso.castShadow=true;g.add(torso);
- const head=new THREE.Mesh(new THREE.SphereGeometry(.13,16,12),skin);head.position.y=1.36;head.castShadow=true;g.add(head);
- const armGeo=new THREE.CapsuleGeometry(.045,.22,3,7);
- for(let side of [-1,1]){const arm=new THREE.Mesh(armGeo,main);arm.position.set(side*.2,1.02,.015);arm.rotation.z=side*.55;g.add(arm);const leg=new THREE.Mesh(new THREE.CylinderGeometry(.055,.075,.3,8),dark);leg.position.set(side*.085,.19,0);g.add(leg)}
- const cape=new THREE.Mesh(new THREE.ConeGeometry(.27,.58,5,1,true),mat(green?0x176346:0x792c35,.25,.65));cape.position.set(0,.86,-.17);cape.rotation.x=-.13;g.add(cape);
- if(code.includes('king')){const crown=new THREE.Mesh(new THREE.CylinderGeometry(.11,.17,.15,7),gold);crown.position.y=1.53;g.add(crown);for(let k=0;k<5;k++){const spike=new THREE.Mesh(new THREE.ConeGeometry(.045,.15,5),gold);const a=k*Math.PI*2/5;spike.position.set(Math.cos(a)*.12,1.66,Math.sin(a)*.12);g.add(spike)}}
- if(code.startsWith('pot_')){const aura=new THREE.Mesh(new THREE.TorusGeometry(.25,.035,8,28),mat(0x6bd9ef,.4,.2));aura.position.y=.12;aura.rotation.x=Math.PI/2;g.add(aura)}
- if(code.startsWith('sp_')){const crest=new THREE.Mesh(new THREE.OctahedronGeometry(.12),gold);crest.position.y=1.57;g.add(crest)}
- const plate=new THREE.Mesh(new THREE.CylinderGeometry(.32,.36,.12,32),gold);plate.position.y=.04;plate.castShadow=true;g.add(plate);
- const cv=document.createElement('canvas');cv.width=128;cv.height=128;const cx=cv.getContext('2d');cx.clearRect(0,0,128,128);cx.fillStyle='#fff4d2';cx.font='bold 70px Tahoma';cx.textAlign='center';cx.textBaseline='middle';cx.shadowColor='#000';cx.shadowBlur=5;cx.fillText(String(hp||1),64,65);const tex=new THREE.CanvasTexture(cv);const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthTest:false}));sprite.position.set(0,1.95,0);sprite.scale.set(.42,.42,1);g.add(sprite);
+ const g=new THREE.Group(),green=owner===0,team=green?0x2fc58a:0xd95757;
+ const palette={king_green:0x38c987,king_red:0xe35b55,king_blue:0x4e9fe6,king_yellow:0xe7b84e,king_white:0xe8e6d8,king_purple:0x9b73d8};
+ const jewel=code.startsWith('king_')?(palette[code]||team):team;
+ const armor=mat(jewel,.78,.23),gold=mat(0xe5bd68,.82,.2),dark=mat(green?0x123c35:0x49232b,.4,.35),skin=mat(0xd9ad8c,.12,.48);
+ const steel=mat(green?0x9bd8c2:0xf0aaa0,.85,.19),black=mat(0x17201e,.35,.55);
+ // سنگ‌فرش و پایه اختصاصی هر مهره
+ const plinth=new THREE.Mesh(new THREE.CylinderGeometry(.39,.43,.16,12),mat(0x493c30,.72,.3));plinth.position.y=.08;plinth.castShadow=true;g.add(plinth);
+ const ring=new THREE.Mesh(new THREE.TorusGeometry(.31,.025,8,32),gold);ring.rotation.x=Math.PI/2;ring.position.y=.17;g.add(ring);
+ // شنل چندلایه
+ const cape=new THREE.Mesh(new THREE.ConeGeometry(.34,.76,7,1,true),mat(green?0x0d684e:0x762c38,.28,.58));cape.position.set(0,.91,-.17);cape.rotation.x=-.16;cape.castShadow=true;g.add(cape);
+ const capeEdge=new THREE.Mesh(new THREE.TorusGeometry(.29,.018,6,24),gold);capeEdge.position.set(0,.54,-.17);capeEdge.rotation.x=Math.PI/2;g.add(capeEdge);
+ // پاها و زره سینه
+ for(const side of [-1,1]){
+  const leg=new THREE.Mesh(new THREE.CapsuleGeometry(.075,.28,4,8),dark);leg.position.set(side*.105,.34,0);leg.castShadow=true;g.add(leg);
+  const boot=new THREE.Mesh(new THREE.BoxGeometry(.17,.12,.24),steel);boot.position.set(side*.105,.18,.055);g.add(boot);
+  const shoulder=new THREE.Mesh(new THREE.SphereGeometry(.16,14,10),gold);shoulder.position.set(side*.23,1.12,0);shoulder.scale.set(1,.78,1);g.add(shoulder);
+  const arm=new THREE.Mesh(new THREE.CapsuleGeometry(.055,.25,4,8),armor);arm.position.set(side*.27,.91,.025);arm.rotation.z=side*.24;g.add(arm);
+  const bracer=new THREE.Mesh(new THREE.CylinderGeometry(.075,.06,.16,8),steel);bracer.position.set(side*.31,.77,.04);bracer.rotation.z=side*.2;g.add(bracer);
+ }
+ const torso=new THREE.Mesh(new THREE.CapsuleGeometry(.19,.38,5,12),armor);torso.position.y=.96;torso.scale.set(1.02,1,.72);torso.castShadow=true;g.add(torso);
+ const breast=new THREE.Mesh(new THREE.OctahedronGeometry(.14,1),gold);breast.position.set(0,1.02,.16);breast.scale.set(1.15,1.1,.35);g.add(breast);
+ const belt=new THREE.Mesh(new THREE.TorusGeometry(.17,.035,8,20),gold);belt.position.y=.72;belt.rotation.x=Math.PI/2;g.add(belt);
+ const neck=new THREE.Mesh(new THREE.CylinderGeometry(.075,.09,.12,12),skin);neck.position.y=1.24;g.add(neck);
+ const head=new THREE.Mesh(new THREE.SphereGeometry(.145,20,16),skin);head.position.set(0,1.39,.015);head.castShadow=true;g.add(head);
+ // helmet, face guard and eyes
+ const helm=new THREE.Mesh(new THREE.SphereGeometry(.17,16,12,0,Math.PI*2,0,Math.PI*.58),steel);helm.position.y=1.47;g.add(helm);
+ const brow=new THREE.Mesh(new THREE.BoxGeometry(.24,.045,.035),gold);brow.position.set(0,1.42,.145);g.add(brow);
+ for(const side of [-1,1]){const eye=new THREE.Mesh(new THREE.SphereGeometry(.018,8,8),black);eye.position.set(side*.052,1.39,.151);g.add(eye)}
+ // crown with five gold points for royal units
+ if(code.startsWith('king_')){
+  const crown=new THREE.Mesh(new THREE.CylinderGeometry(.12,.18,.13,8),gold);crown.position.y=1.62;g.add(crown);
+  for(let k=0;k<7;k++){const a=k*Math.PI*2/7,sp=new THREE.Mesh(new THREE.ConeGeometry(.045,.19,5),gold);sp.position.set(Math.cos(a)*.13,1.77,Math.sin(a)*.13);g.add(sp)}
+  const gem=new THREE.Mesh(new THREE.OctahedronGeometry(.075),mat(0x65e5e3,.7,.12));gem.position.set(0,1.66,.17);g.add(gem);
+  const mantle=new THREE.Mesh(new THREE.TorusGeometry(.22,.035,8,32),gold);mantle.position.y=1.28;mantle.rotation.x=Math.PI/2;g.add(mantle);
+ }else{
+  const crest=new THREE.Mesh(new THREE.ConeGeometry(.105,.22,5),gold);crest.position.y=1.65;g.add(crest);
+ }
+ // weapon and royal shield, held on the right side
+ const sword=new THREE.Group();const blade=new THREE.Mesh(new THREE.ConeGeometry(.055,.62,4),steel);blade.rotation.z=Math.PI;blade.position.y=.34;sword.add(blade);
+ const guard=new THREE.Mesh(new THREE.BoxGeometry(.27,.055,.07),gold);guard.position.y=.05;sword.add(guard);
+ const grip=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,.19,8),dark);grip.position.y=-.07;sword.add(grip);sword.position.set(.38,.92,.08);sword.rotation.z=-.2;g.add(sword);
+ const shield=new THREE.Mesh(new THREE.CylinderGeometry(.17,.2,.075,6),gold);shield.rotation.x=Math.PI/2;shield.position.set(-.35,.97,.13);g.add(shield);
+ const sigil=new THREE.Mesh(new THREE.OctahedronGeometry(.095),armor);sigil.position.set(-.35,.97,.18);g.add(sigil);
+ if(code.startsWith('pot_')){const aura=new THREE.Mesh(new THREE.TorusGeometry(.28,.035,8,36),mat(code==='pot_blue'?0x58dfff:0x7df080,.65,.16));aura.position.y=.22;aura.rotation.x=Math.PI/2;g.add(aura)}
+ if(code.startsWith('sp_')){const crystal=new THREE.Mesh(new THREE.OctahedronGeometry(.13),mat(0x8de5f0,.72,.12));crystal.position.y=1.86;g.add(crystal)}
+ const cv=document.createElement('canvas');cv.width=128;cv.height=128;const cx=cv.getContext('2d');cx.clearRect(0,0,128,128);cx.fillStyle='#fff2c8';cx.strokeStyle='#6c3f1b';cx.lineWidth=6;cx.beginPath();cx.arc(64,64,48,0,Math.PI*2);cx.fill();cx.stroke();cx.fillStyle='#392719';cx.font='bold 66px Tahoma';cx.textAlign='center';cx.textBaseline='middle';cx.fillText(String(hp||1),64,65);const tex=new THREE.CanvasTexture(cv);const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthTest:false}));sprite.position.set(0,2.12,0);sprite.scale.set(.38,.38,1);g.add(sprite);
  return g
 }
 function init3D(){
- scene=new THREE.Scene();scene.background=new THREE.Color(0x172322);scene.fog=new THREE.Fog(0x172322,8,18);
- camera=new THREE.PerspectiveCamera(42,1,.1,100);camera.position.set(4.8,6.5,7.8);camera.lookAt(0,0,0);
- renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});renderer.setPixelRatio(Math.min(devicePixelRatio,1.8));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.domElement.style.cssText='width:100%;height:100%;display:block;touch-action:none';
- host.appendChild(renderer.domElement);scene.add(new THREE.HemisphereLight(0xc6e8dc,0x37251b,2.0));
- const key=new THREE.DirectionalLight(0xffe0a0,3);key.position.set(4,8,5);key.castShadow=true;key.shadow.mapSize.set(1024,1024);scene.add(key);
- const rim=new THREE.PointLight(0x56c8ae,20,12);rim.position.set(-4,3,-3);scene.add(rim);
- const floor=new THREE.Mesh(new THREE.CircleGeometry(9,64),mat(0x253630,.15,.9));floor.rotation.x=-Math.PI/2;floor.position.y=-.5;floor.receiveShadow=true;scene.add(floor);
- for(let i=0;i<8;i++){const a=i*Math.PI/4,x=Math.cos(a)*3.5,z=Math.sin(a)*3.5;const col=new THREE.Mesh(new THREE.CylinderGeometry(.13,.18,1.8,8),mat(0x766044,.55,.48));col.position.set(x,.25,z);col.castShadow=true;scene.add(col);const cap=new THREE.Mesh(new THREE.CylinderGeometry(.24,.2,.16,8),mat(0xd0a65e,.7,.3));cap.position.set(x,1.22,z);scene.add(cap)}
+ scene=new THREE.Scene();scene.background=new THREE.Color(0x101c24);scene.fog=new THREE.Fog(0x101c24,12,27);
+ camera=new THREE.PerspectiveCamera(39,1,.1,100);camera.position.set(5.7,7.2,8.6);camera.lookAt(0,.15,0);
+ renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;renderer.domElement.style.cssText='width:100%;height:100%;display:block;touch-action:none';
+ host.appendChild(renderer.domElement);
+ scene.add(new THREE.HemisphereLight(0xc9e5ff,0x39271b,1.7));
+ const key=new THREE.DirectionalLight(0xffd99b,3.2);key.position.set(5,10,6);key.castShadow=true;key.shadow.mapSize.set(2048,2048);scene.add(key);
+ const rim=new THREE.PointLight(0x4ed7c2,28,16);rim.position.set(-5,4,-4);scene.add(rim);
+ const warm=new THREE.PointLight(0xff8a3d,22,11);warm.position.set(4,3,-4);scene.add(warm);
+ // عظیم‌میدان سنگی و حلقه‌های معماری
+ const ground=new THREE.Mesh(new THREE.CircleGeometry(13,96),mat(0x202c2e,.18,.92));ground.rotation.x=-Math.PI/2;ground.position.y=-.72;ground.receiveShadow=true;scene.add(ground);
+ const arena=new THREE.Mesh(new THREE.CylinderGeometry(5.9,6.3,.38,64),mat(0x493629,.62,.42));arena.position.y=-.48;arena.receiveShadow=true;arena.castShadow=true;scene.add(arena);
+ const trim=new THREE.Mesh(new THREE.TorusGeometry(5.95,.075,10,96),mat(0xd0a45d,.8,.23));trim.rotation.x=Math.PI/2;trim.position.y=-.27;scene.add(trim);
+ for(let i=0;i<12;i++){const a=i*Math.PI/6,x=Math.cos(a)*5.2,z=Math.sin(a)*5.2;const pillar=new THREE.Group();const shaft=new THREE.Mesh(new THREE.CylinderGeometry(.16,.23,2.8,10),mat(0x74614d,.6,.48));shaft.position.y=.9;shaft.castShadow=true;pillar.add(shaft);const cap=new THREE.Mesh(new THREE.CylinderGeometry(.3,.22,.2,10),mat(0xc69c5b,.8,.25));cap.position.y=2.38;pillar.add(cap);pillar.position.set(x,0,z);scene.add(pillar);
+  const flame=new THREE.PointLight(0xff8a37,3.8,3.2);flame.position.set(x*.88,2.25,z*.88);scene.add(flame);
+  const torch=new THREE.Mesh(new THREE.ConeGeometry(.09,.28,8),mat(0xff9c42,.4,.3));torch.position.set(x*.88,2.38,z*.88);scene.add(torch);
+ }
+ // پرچم‌های دو قلمرو
+ for(let side=0;side<2;side++){const x=side? -3.5:3.5,z=-3.4;const pole=new THREE.Mesh(new THREE.CylinderGeometry(.035,.05,2.3,8),mat(0xd8b46c,.75,.25));pole.position.set(x,1,z);scene.add(pole);const flag=new THREE.Mesh(new THREE.PlaneGeometry(.9,.55),new THREE.MeshStandardMaterial({color:side?0xc9474d:0x27a878,side:THREE.DoubleSide,roughness:.65}));flag.position.set(x+(side?-.38:.38),1.7,z);flag.rotation.y=side?-.25:.25;scene.add(flag);const crest=new THREE.Mesh(new THREE.OctahedronGeometry(.16),mat(0xf2d28a,.7,.2));crest.position.set(x+(side?-.38:.38),1.7,z+.015);scene.add(crest)}
  boardGroup=new THREE.Group();scene.add(boardGroup);
- const base=box(boardGroup,3.95,.28,3.95,mat(0x5b3822,.5,.38),0,-.16,0);
- const rimMat=mat(0xc49a58,.72,.27);
- for(let i=0;i<3;i++)for(let j=0;j<3;j++){const tile=box(boardGroup,1.25,.09,1.25,mat((i+j)%2?0xd7bd8c:0x9b8059,.18,.62),j-1,-.005,i-1);tile.userData.index=i*3+j;tiles.push(tile)}
- for(let k=0;k<4;k++){box(boardGroup,4.05,.13,.12,rimMat,0,.02,k<2?-1.98:1.98);box(boardGroup,.12,.13,4.05,rimMat,k<2?-1.98:1.98,.02,0)}
+ const base=box(boardGroup,4.2,.34,4.2,mat(0x34251e,.68,.32),0,-.16,0);
+ const goldRim=mat(0xd7b36e,.82,.22),darkRim=mat(0x5b3a28,.7,.3);
+ for(let i=0;i<3;i++)for(let j=0;j<3;j++){
+  const tile=box(boardGroup,1.29,.12,1.29,mat((i+j)%2?0xb99b70:0x79604a,.35,.48),j-1,-.005,i-1);tile.userData.index=i*3+j;tiles.push(tile);
+  const inset=box(boardGroup,1.18,.018,1.18,mat((i+j)%2?0xd2bd93:0x9d7d5a,.2,.55),j-1,.065,i-1);
+ }
+ for(let k=0;k<4;k++){box(boardGroup,4.3,.16,.14,goldRim,0,.025,k<2?-2.08:2.08);box(boardGroup,.14,.16,4.3,goldRim,k<2?-2.08:2.08,.025,0)}
+ for(let i=0;i<4;i++){const gem=new THREE.Mesh(new THREE.OctahedronGeometry(.12),mat(0x4ddacb,.7,.15));gem.position.set(i%2?2.12:-2.12,.14,i<2?2.12:-2.12);boardGroup.add(gem)}
  pieceGroup=new THREE.Group();boardGroup.add(pieceGroup);raycaster=new THREE.Raycaster();pointer=new THREE.Vector2();
- resize();window.addEventListener('resize',resize);animate();
+ resize();window.addEventListener('resize',resize);animate();attachControls();
 }
 function resize(){if(!renderer||!host)return;const w=host.clientWidth,h=host.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
 function animate(){requestAnimationFrame(animate);if(boardGroup)boardGroup.rotation.y+=0;renderer.render(scene,camera)}
@@ -102,7 +149,7 @@ function bindInner(){
    if(!style){style=doc.createElement('style');style.id='threeBoardStyle';style.textContent='.app{max-width:760px!important;min-height:100vh!important}.board{display:none!important}header{position:sticky;top:0;z-index:2}.screen{padding-top:10px}';doc.head.appendChild(style);}
    if(!host){
     host=doc.createElement('div');host.id='threeBoardHost';
-    host.style.cssText='width:min(100%,520px);height:clamp(300px,48vh,470px);margin:10px auto 12px;border:3px ridge #c49a58;border-radius:15px;overflow:hidden;background:radial-gradient(#526b60,#172321);box-shadow:0 12px 28px #0008;touch-action:none';
+    host.style.cssText='width:min(100%,820px);height:clamp(390px,62vh,680px);margin:12px auto 16px;border:3px solid #d7b36e;border-radius:20px;overflow:hidden;background:radial-gradient(ellipse at 50% 30%,#465f59,#111b22 72%);box-shadow:0 18px 48px #000b,inset 0 0 35px #d9b36b33;touch-action:none';
    }
    oldBoard.parentNode.insertBefore(host,oldBoard);
    host.style.display='block';
@@ -159,7 +206,7 @@ setTimeout(()=>{try{const d=frame.contentDocument;if(d&&d.readyState==='complete
 setTimeout(()=>{try{const d=frame.contentDocument;if(d&&d.body){const home=d.getElementById('home');if(home&&!d.querySelector('.screen.active'))home.classList.add('active');if(!home){loading.textContent='ساختار صفحه بازی ناقص است؛ نسخه دوبعدی را جداگانه اجرا کنید.';loading.style.display='flex';}}}catch(e){loading.textContent='مرورگر اجازه نمایش صفحه داخلی بازی را نداد.';loading.style.display='flex';}},3500);
 function pointerDown(e){drag={x:e.clientX,y:e.clientY,rot:boardGroup.rotation.y,vertical:boardGroup.rotation.x,moved:false};host.setPointerCapture(e.pointerId)}
 function pointerMove(e){if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)>5)drag.moved=true;boardGroup.rotation.y=drag.rot+dx*.008;boardGroup.rotation.x=Math.max(-.65,Math.min(.45,drag.vertical+dy*.004))}
-function pointerUp(e){if(!drag)return;const wasDrag=drag.moved;drag=null;if(wasDrag)return;const rect=renderer.domElement.getBoundingClientRect();pointer.x=((e.clientX-rect.left)/rect.width)*2-1;pointer.y=-((e.clientY-rect.top)/rect.height)*2+1;raycaster.setFromCamera(pointer,camera);const hits=raycaster.intersectObjects(tiles,false);if(hits.length){const index=hits[0].object.userData.index;if(inner&&typeof inner.onCell==='function'){inner.onCell(index);sfx('move')}}}
+function pointerUp(e){if(!drag)return;const wasDrag=drag.moved;drag=null;if(wasDrag)return;const rect=renderer.domElement.getBoundingClientRect();pointer.x=((e.clientX-rect.left)/rect.width)*2-1;pointer.y=-((e.clientY-rect.top)/rect.height)*2+1;raycaster.setFromCamera(pointer,camera);const hits=raycaster.intersectObjects(tiles,false);if(hits.length){const index=hits[0].object.userData.index;if(inner&&typeof inner.onCell==='function'){const cell=inner.document.querySelectorAll('#board .cell')[index];if(cell&&cell.querySelector('.die')&&!inner.selectedPiece&&!inner.actionMode&&typeof inner.showDieInfo==='function')inner.showDieInfo(index);else inner.onCell(index);sfx('move')}}}
 function attachControls(){host.addEventListener('pointerdown',pointerDown);host.addEventListener('pointermove',pointerMove);host.addEventListener('pointerup',pointerUp);host.addEventListener('pointercancel',()=>drag=null)}
 document.getElementById('zoomIn').onclick=()=>{if(camera){camera.position.multiplyScalar(.88);camera.lookAt(0,0,0)}};document.getElementById('zoomOut').onclick=()=>{if(camera){camera.position.multiplyScalar(1.14);camera.lookAt(0,0,0)}};host?.addEventListener('wheel',e=>{if(camera){camera.position.multiplyScalar(e.deltaY>0?1.08:.92);camera.lookAt(0,0,0);e.preventDefault()}},{passive:false});document.getElementById('reset').onclick=()=>{if(boardGroup){boardGroup.rotation.set(0,0,0);camera.position.set(4.8,6.5,7.8);camera.lookAt(0,0,0);notice('زاویه دید به حالت اصلی برگشت.')}};
 const originalInit=init3D;init3D=function(){originalInit();attachControls()};
