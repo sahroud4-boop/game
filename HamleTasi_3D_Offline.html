@@ -81,7 +81,7 @@ function sync3D(){
  if(!inner||!inner.document)return;const cells=[...inner.document.querySelectorAll('#board .cell')];if(cells.length!==9)return;
  const signature=cells.map(c=>{const d=c.querySelector('.die');return d?(d.className+'|'+d.textContent+'|'+(c.querySelector('.shield-mark')?.textContent||'')):'-'}).join(';');
  if(signature===lastBoard)return;const old=lastBoard;lastBoard=signature;
- while(pieceGroup.children.length){const o=pieceGroup.children.pop();pieceGroup.remove(o);o.traverse?.(n=>{if(n.geometry)n.geometry.dispose()})}
+ while(pieceGroup.children.length){const o=pieceGroup.children[0];pieceGroup.remove(o);o.traverse?.(n=>{if(n.geometry)n.geometry.dispose();if(n.material){const ms=Array.isArray(n.material)?n.material:[n.material];ms.forEach(m=>{if(m.map)m.map.dispose();m.dispose()})}})}
  cells.forEach((cell,i)=>{const d=cell.querySelector('.die');if(!d)return;const owner=d.classList.contains('me')?0:1,code=(d.className.match(/unit-([\w]+)/)||[])[1]||'normal',hp=parseInt(d.textContent.replace(/[^0-9۰-۹]/g,''))||1;const g=makeStatue(code,owner,hp);g.position.set(i%3-1,.04,Math.floor(i/3)-1);g.rotation.y=(i%2)*.3;pieceGroup.add(g);if(cell.querySelector('.shield-mark')){const shield=new THREE.Mesh(new THREE.SphereGeometry(.46,16,12),new THREE.MeshPhysicalMaterial({color:0x69dfff,transparent:true,opacity:.22,metalness:.5,roughness:.08}));shield.position.y=.75;g.add(shield)}});
  if(old){sfx('move');spawnSpark()}
 }
