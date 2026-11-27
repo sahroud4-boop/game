@@ -27,6 +27,8 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
 <script>
 (()=> {
 const frame=document.getElementById('gameFrame'),loading=document.getElementById('loading'),toast=document.getElementById('toast');
+// srcdoc در این نسخه به‌صورت URI-encoded در HTML ذخیره شده؛ پیش از bind باید به HTML واقعی تبدیل شود.
+try{const encoded=frame.getAttribute('srcdoc');if(encoded&&encoded.startsWith('%3C'))frame.srcdoc=decodeURIComponent(encoded);}catch(e){loading.textContent='خطا در بازکردن محتوای بازی: '+e.message;}
 let audioCtx=null,musicOn=false,soundOn=true,musicTimer=null,melodyStep=0;
 function audio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}
 function tone(freq,duration=.16,type='sine',gain=.06,delay=0){try{const c=audio(),o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(freq,c.currentTime+delay);g.gain.setValueAtTime(.0001,c.currentTime+delay);g.gain.exponentialRampToValueAtTime(gain,c.currentTime+delay+.015);g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+delay+duration);o.connect(g);g.connect(c.destination);o.start(c.currentTime+delay);o.stop(c.currentTime+delay+duration+.03)}catch(e){}}
