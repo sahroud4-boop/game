@@ -125,8 +125,9 @@ function init3D(){
  pieceGroup=new THREE.Group();boardGroup.add(pieceGroup);raycaster=new THREE.Raycaster();pointer=new THREE.Vector2();
  resize();window.addEventListener('resize',resize);animate();attachControls();
 }
-function resize(){if(!renderer||!host)return;const w=host.clientWidth,h=host.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
-function animate(){requestAnimationFrame(animate);if(boardGroup)boardGroup.rotation.y+=0;renderer.render(scene,camera)}
+let renderW=0,renderH=0;
+function resize(){if(!renderer||!host)return;const w=host.clientWidth,h=host.clientHeight;if(w<2||h<2)return;if(w===renderW&&h===renderH)return;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();renderW=w;renderH=h}
+function animate(){requestAnimationFrame(animate);if(host&&(host.clientWidth!==renderW||host.clientHeight!==renderH))resize();if(renderer&&scene&&camera)renderer.render(scene,camera)}
 function sync3D(){
  if(!inner||!inner.document)return;const cells=[...inner.document.querySelectorAll('#board .cell')];if(cells.length!==9)return;
  const signature=cells.map(c=>{const d=c.querySelector('.die');return d?(d.className+'|'+d.textContent+'|'+(c.querySelector('.shield-mark')?.textContent||'')):'-'}).join(';');
