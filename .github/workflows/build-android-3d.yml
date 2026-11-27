@@ -31,6 +31,7 @@ jobs:
           test -s HamleTasi_3D_Offline.html
           grep -q 'zoomIn' HamleTasi_3D_Offline.html
           grep -q 'speechSynthesis' HamleTasi_3D_Offline.html
+          grep -q "versionName '3.0'" android/app/build.gradle
       - name: Package offline 3D game
         run: |
           mkdir -p android/app/src/main/assets
