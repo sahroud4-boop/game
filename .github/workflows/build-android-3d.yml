@@ -1,0 +1,42 @@
+name: Build Hamle Tasi 3D Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'HamleTasi_3D_Offline.html'
+      - 'android/**'
+      - '.github/workflows/build-android-3d.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+      - name: Package offline 3D game
+        run: |
+          mkdir -p android/app/src/main/assets
+          cp HamleTasi_3D_Offline.html android/app/src/main/assets/index.html
+      - name: Build debug APK
+        working-directory: android
+        run: gradle --no-daemon assembleDebug
+      - name: Upload 3D APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: HamleTasi-3D-Android-debug
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 30
