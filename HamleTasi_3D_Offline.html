@@ -134,7 +134,23 @@ function bindInner(){
   boardObserver.observe(doc.body,{childList:true,subtree:true});
  }
 }
-frame.addEventListener('load',()=>{try{bindInner()}catch(e){loading.textContent='خطا در راه‌اندازی صحنه: '+e.message}});
+let bindRetries=0;
+function safeBindInner(){
+ try{
+  if(!frame.contentDocument||!frame.contentDocument.body){
+   if(bindRetries++<80){setTimeout(safeBindInner,150);return;}
+   loading.textContent='صفحه داخلی بازی بارگذاری نشد؛ مرورگر را ببندید و دوباره باز کنید.';
+   return;
+  }
+  bindInner();
+ }catch(e){
+  if(bindRetries++<80){setTimeout(safeBindInner,150);return;}
+  loading.textContent='خطا در بارگذاری بازی: '+(e&&e.message?e.message:'خطای ناشناخته');
+ }
+}
+frame.addEventListener('load',safeBindInner);
+if(frame.contentDocument&&frame.contentDocument.readyState==='complete')setTimeout(safeBindInner,0);
+else setTimeout(safeBindInner,250);
 function pointerDown(e){drag={x:e.clientX,y:e.clientY,rot:boardGroup.rotation.y,vertical:boardGroup.rotation.x,moved:false};host.setPointerCapture(e.pointerId)}
 function pointerMove(e){if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)>5)drag.moved=true;boardGroup.rotation.y=drag.rot+dx*.008;boardGroup.rotation.x=Math.max(-.65,Math.min(.45,drag.vertical+dy*.004))}
 function pointerUp(e){if(!drag)return;const wasDrag=drag.moved;drag=null;if(wasDrag)return;const rect=renderer.domElement.getBoundingClientRect();pointer.x=((e.clientX-rect.left)/rect.width)*2-1;pointer.y=-((e.clientY-rect.top)/rect.height)*2+1;raycaster.setFromCamera(pointer,camera);const hits=raycaster.intersectObjects(tiles,false);if(hits.length){const index=hits[0].object.userData.index;if(inner&&typeof inner.onCell==='function'){inner.onCell(index);sfx('move')}}}
