@@ -26,6 +26,11 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.7'
+      - name: Verify offline 3D source
+        run: |
+          test -s HamleTasi_3D_Offline.html
+          grep -q 'zoomIn' HamleTasi_3D_Offline.html
+          grep -q 'speechSynthesis' HamleTasi_3D_Offline.html
       - name: Package offline 3D game
         run: |
           mkdir -p android/app/src/main/assets
