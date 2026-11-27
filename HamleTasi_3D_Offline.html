@@ -87,15 +87,52 @@ function sync3D(){
 }
 function spawnSpark(){const group=new THREE.Group();boardGroup.add(group);const m=mat(0xffd16a,.7,.2);for(let i=0;i<16;i++){const p=new THREE.Mesh(new THREE.SphereGeometry(.035,6,6),m);p.position.set((Math.random()-.5)*2,Math.random()*1.3,(Math.random()-.5)*2);group.add(p)}setTimeout(()=>boardGroup.remove(group),650)}
 function bindInner(){
- inner=frame.contentWindow;const doc=inner.document;const oldBoard=doc.getElementById('board');if(!oldBoard)return;
- const style=doc.createElement('style');style.textContent='.app{max-width:760px!important;min-height:100vh!important}.board{display:none!important}header{position:sticky;top:0;z-index:2}.screen{padding-top:10px}';doc.head.appendChild(style);
- host=doc.createElement('div');host.id='threeBoardHost';host.style.cssText='width:min(100%,520px);height:clamp(300px,48vh,470px);margin:10px auto 12px;border:3px ridge #c49a58;border-radius:15px;overflow:hidden;background:radial-gradient(#526b60,#172321);box-shadow:0 12px 28px #0008;touch-action:none';
- oldBoard.parentNode.insertBefore(host,oldBoard);oldBoard.style.display='none';
- init3D();sync3D();observer=new MutationObserver(()=>sync3D());observer.observe(oldBoard,{childList:true,subtree:true,characterData:true,attributes:true});
- doc.addEventListener('click',e=>{if(e.target.closest('button'))sfx('tap')},true);
- const turn=doc.getElementById('turn');if(turn){new MutationObserver(()=>{const v=turn.textContent;if(v!==lastTurn){lastTurn=v;if(v.includes('حریف'))say('نوبت حریف است.');}}).observe(turn,{childList:true,subtree:true,characterData:true})}
+ inner=frame.contentWindow;
+ const doc=inner&&inner.document;
+ if(!doc||!doc.body){loading.textContent='خطا در بارگذاری صفحه بازی؛ لطفاً دوباره تلاش کنید.';return;}
+ const mountBoard=()=>{
+  const oldBoard=doc.getElementById('board');
+  if(!oldBoard||!oldBoard.parentNode)return false;
+  if(oldBoard.dataset.threeMounted==='1')return true;
+  try{
+   let style=doc.getElementById('threeBoardStyle');
+   if(!style){style=doc.createElement('style');style.id='threeBoardStyle';style.textContent='.app{max-width:760px!important;min-height:100vh!important}.board{display:none!important}header{position:sticky;top:0;z-index:2}.screen{padding-top:10px}';doc.head.appendChild(style);}
+   if(!host){
+    host=doc.createElement('div');host.id='threeBoardHost';
+    host.style.cssText='width:min(100%,520px);height:clamp(300px,48vh,470px);margin:10px auto 12px;border:3px ridge #c49a58;border-radius:15px;overflow:hidden;background:radial-gradient(#526b60,#172321);box-shadow:0 12px 28px #0008;touch-action:none';
+   }
+   oldBoard.parentNode.insertBefore(host,oldBoard);
+   host.style.display='block';
+   oldBoard.style.display='none';
+   oldBoard.dataset.threeMounted='1';
+   if(!renderer){init3D();}else{resize();}
+   sync3D();
+   if(observer)observer.disconnect();
+   observer=new MutationObserver(()=>sync3D());
+   observer.observe(oldBoard,{childList:true,subtree:true,characterData:true,attributes:true});
+   if(!doc.body.dataset.threeClickBound){
+    doc.body.dataset.threeClickBound='1';
+    doc.addEventListener('click',e=>{if(e.target.closest('button'))sfx('tap')},true);
+    const turn=doc.getElementById('turn');
+    if(turn)new MutationObserver(()=>{const v=turn.textContent;if(v!==lastTurn){lastTurn=v;if(v.includes('حریف'))say('نوبت حریف است.');}}).observe(turn,{childList:true,subtree:true,characterData:true});
+   }
+   loading.style.display='none';
+   notice('میدان سه‌بعدی آماده است؛ حرکت‌ها را از صفحه بازی انجام دهید.');
+   if(boardObserver){boardObserver.disconnect();boardObserver=null;}
+   return true;
+  }catch(e){
+   loading.textContent='راه‌اندازی میدان سه‌بعدی ناموفق بود: '+(e&&e.message?e.message:'خطای ناشناخته');
+   loading.style.display='block';
+   return false;
+  }
+ };
+ if(mountBoard())return;
+ // تخته در صفحه آغازین هنوز ساخته نشده است؛ اجازه بده صفحه اصلی قابل استفاده بماند.
  loading.style.display='none';
- notice('میدان سه‌بعدی آماده است؛ حرکت‌ها را از صفحه بازی انجام دهید.');
+ if(!boardObserver){
+  boardObserver=new MutationObserver(()=>{mountBoard();});
+  boardObserver.observe(doc.body,{childList:true,subtree:true});
+ }
 }
 frame.addEventListener('load',()=>{try{bindInner()}catch(e){loading.textContent='خطا در راه‌اندازی صحنه: '+e.message}});
 function pointerDown(e){drag={x:e.clientX,y:e.clientY,rot:boardGroup.rotation.y,vertical:boardGroup.rotation.x,moved:false};host.setPointerCapture(e.pointerId)}
