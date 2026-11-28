@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>حمله تاسی | میدان سه‌بعدی</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#101820;color:#f5f0df;font-family:Tahoma,Arial;overflow:hidden}#game{position:fixed;inset:0}canvas{display:block}#top{position:fixed;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;gap:8px;align-items:center;pointer-events:none}#top>*{pointer-events:auto;background:#172b2bdb;border:1px solid #b99448;border-radius:12px;padding:9px 12px}h1{font-size:16px;margin:0;color:#e6c779}#status{font-size:12px}#panel{position:fixed;bottom:10px;left:10px;right:10px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap}button{background:#176b50;color:white;border:1px solid #6ac69a;border-radius:10px;padding:10px 14px;font-weight:bold;font-size:13px}button:active{transform:scale(.97)}#help{position:fixed;right:12px;top:68px;max-width:210px;background:#102522d9;border:1px solid #a98a4a;border-radius:10px;padding:10px;font-size:11px;line-height:1.9}#toast{position:fixed;bottom:76px;left:50%;transform:translateX(-50%);background:#111d;color:#ffe3a0;padding:8px 14px;border-radius:9px;font-size:12px;white-space:nowrap}
+</style></head><body><div id="game"></div>
+<div id="top"><div><h1>حمله تاسی | میدان نبرد سه‌بعدی</h1><div id="status">نوبت شما · انتخاب مهره و خانه</div></div><button id="sound">🔊 صدا روشن</button></div>
+<div id="help">برای چرخش، روی میدان بکشید؛ برای نزدیک‌نمایی از دو انگشت یا چرخ ماوس استفاده کنید. ابتدا مهره را انتخاب و سپس خانه خالی را لمس کنید. هر ردیف یا ستون کامل، بر اساس مجموع قدرت مهره‌ها سنجیده می‌شود.</div>
+<div id="panel"><button data-hp="1">مهره ۱</button><button data-hp="2">مهره ۲</button><button data-hp="3">مهره ۳</button><button data-hp="4">مهره ۴</button><button data-hp="5">مهره ۵</button><button data-hp="6">مهره ۶</button><button id="roll">🎲 تاس</button><button id="reset">شروع دوباره</button></div><div id="toast">مهره‌ای انتخاب کنید</div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script><script>
+(()=>{const root=document.getElementById('game'),status=document.getElementById('status'),toast=document.getElementById('toast');if(!window.THREE){toast.textContent='برای بارگذاری موتور سه‌بعدی، اینترنت را وصل کنید.';return}
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x101820);scene.fog=new THREE.Fog(0x101820,18,34);
+const camera=new THREE.PerspectiveCamera(42,innerWidth/innerHeight,.1,100);camera.position.set(7,9,11);
+const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;root.appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xc9e8ff,0x44301e,2));const sun=new THREE.DirectionalLight(0xffdfaa,3);sun.position.set(-5,10,6);sun.castShadow=true;scene.add(sun);
+const mat=(c,m=0,r=.7)=>new THREE.MeshStandardMaterial({color:c,metalness:m,roughness:r});
+const stone=mat(0x746b5a),gold=mat(0xc59a45,.75,.28),red=mat(0x9d292b,.35,.4),blue=mat(0x176b9b,.45,.35),dark=mat(0x292d32,.6,.35),sand=mat(0xb7a17b);
+const floor=new THREE.Mesh(new THREE.CylinderGeometry(9,9,.6,64),stone);floor.position.y=-.55;floor.receiveShadow=true;scene.add(floor);
+const arena=new THREE.Mesh(new THREE.CylinderGeometry(6.3,6.3,.16,48),mat(0x403c35));arena.position.y=-.18;arena.receiveShadow=true;scene.add(arena);
+for(let i=0;i<28;i++){let a=i/28*Math.PI*2;let p=new THREE.Mesh(new THREE.BoxGeometry(.55,1.6,.6),i%2?stone:gold);p.position.set(Math.cos(a)*7.8,.35,Math.sin(a)*7.8);p.lookAt(0,0,0);p.castShadow=true;scene.add(p)}
+const board=new THREE.Group();scene.add(board);
+const cells=[];const pieces=Array(9).fill(null);let selected=3,turn=0,roll=0,sound=true;
+const base=new THREE.Mesh(new THREE.BoxGeometry(6.3,.42,6.3),dark);base.position.y=.02;base.castShadow=true;base.receiveShadow=true;board.add(base);
+for(let z=0;z<3;z++)for(let x=0;x<3;x++){let tile=new THREE.Mesh(new THREE.BoxGeometry(1.96,.12,1.96),((x+z)%2)?mat(0xb39a70):mat(0x66543e));tile.position.set((x-1)*2,.3,(z-1)*2);tile.receiveShadow=true;tile.userData.index=z*3+x;board.add(tile);cells.push(tile)}
+function warrior(h,side){let g=new THREE.Group(),cloth=side?blue:red,skin=mat(0xc68f67),silver=mat(0xaeb8bd,.8,.25);const add=(geo,ma,x,y,z)=>{let o=new THREE.Mesh(geo,ma);o.position.set(x,y,z);o.castShadow=true;g.add(o);return o};
+add(new THREE.CylinderGeometry(.25,.32,.72,12),cloth,0,.83,0);add(new THREE.SphereGeometry(.23,16,12),skin,0,1.34,0);add(new THREE.SphereGeometry(.28,16,10,0,Math.PI*2,0,Math.PI*.48),side?gold:silver,0,1.48,0);add(new THREE.BoxGeometry(.68,.13,.5),silver,0,1.03,0);
+for(let s of [-1,1]){add(new THREE.CylinderGeometry(.09,.11,.55,8),cloth,s*.34,.88,0);add(new THREE.CylinderGeometry(.12,.14,.38,8),dark,s*.13,.28,0)}
+add(new THREE.CylinderGeometry(.035,.05,.95,8),gold,.48,1.05,0).rotation.z=-.3;add(new THREE.ConeGeometry(.12,.3,8),gold,.48,1.58,0);
+if(h===6){add(new THREE.ConeGeometry(.34,.5,8),gold,0,1.8,0);add(new THREE.BoxGeometry(.62,.12,.12),gold,0,1.62,0)}
+g.userData.side=side;g.userData.hp=h;return g}
+function place(i,h,side){let g=warrior(h,side);g.position.set((i%3-1)*2,.38, (Math.floor(i/3)-1)*2);g.scale.setScalar(.8+h*.035);board.add(g);pieces[i]={g,h,side};}
+function clear(){for(let p of pieces)if(p)board.remove(p.g);pieces.fill(null)}
+function update(){status.textContent=(turn?'نوبت رقیب':'نوبت شما')+' · تاس: '+(roll||'—');}
+function say(t){toast.textContent=t;clearTimeout(say.t);say.t=setTimeout(()=>toast.textContent='مهره را انتخاب کنید و خانه خالی را بزنید',2400)}
+function score(){let lines=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8]];for(let l of lines)if(l.every(i=>pieces[i])){let a=l.reduce((s,i)=>s+(pieces[i].side?0:pieces[i].h),0),b=l.reduce((s,i)=>s+(pieces[i].side?pieces[i].h:0),0);say(a===b?'ردیف مساوی شد':a>b?'قدرت شما در این خط بیشتر است':'رقیب در این خط برتری دارد');}}
+function ai(){let free=pieces.map((p,i)=>p? -1:i).filter(i=>i>=0);if(!free.length){turn=0;return}let i=free[Math.floor(Math.random()*free.length)],h=1+Math.floor(Math.random()*6);place(i,h,1);turn=0;score();update()}
+let ray=new THREE.Raycaster(),mouse=new THREE.Vector2();renderer.domElement.addEventListener('pointerdown',e=>{renderer.domElement.setPointerCapture(e.pointerId);down={x:e.clientX,y:e.clientY,moved:false};});let down=null;
+renderer.domElement.addEventListener('pointermove',e=>{if(down){let dx=e.clientX-down.x,dy=e.clientY-down.y;if(Math.abs(dx)+Math.abs(dy)>4)down.moved=true;camera.position.applyAxisAngle(new THREE.Vector3(0,1,0),-dx*.004);camera.position.y=Math.max(4,Math.min(13,camera.position.y+dy*.018));camera.lookAt(0,0,0);down.x=e.clientX;down.y=e.clientY}});
+renderer.domElement.addEventListener('pointerup',e=>{if(!down)return;if(!down.moved){mouse.x=e.clientX/innerWidth*2-1;mouse.y=-(e.clientY/innerHeight)*2+1;ray.setFromCamera(mouse,camera);let hit=ray.intersectObjects(cells)[0];if(hit){let i=hit.object.userData.index;if(pieces[i])say('این خانه اشغال است');else if(turn===0){place(i,selected,0);turn=1;score();update();setTimeout(ai,650)}}}down=null});
+renderer.domElement.addEventListener('wheel',e=>{camera.position.multiplyScalar(e.deltaY>0?1.08:.92);camera.position.clampLength(6,22);camera.lookAt(0,0,0)},{passive:true});
+document.querySelectorAll('[data-hp]').forEach(b=>b.onclick=()=>{selected=+b.dataset.hp;say('مهره با قدرت '+selected+' انتخاب شد')});
+document.getElementById('roll').onclick=()=>{roll=1+Math.floor(Math.random()*6);selected=roll;say('عدد تاس: '+roll);update();beep(420+roll*65)};
+document.getElementById('reset').onclick=()=>{clear();turn=0;roll=0;update();say('بازی تازه آغاز شد')};
+function beep(f){if(!sound)return;let c=new(window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.frequency.value=f;o.connect(g);g.connect(c.destination);g.gain.setValueAtTime(.06,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.25);o.start();o.stop(c.currentTime+.25)}
+document.getElementById('sound').onclick=e=>{sound=!sound;e.target.textContent=sound?'🔊 صدا روشن':'🔇 صدا خاموش';if(sound)beep(600)};
+place(4,6,1);place(0,5,0);update();
+function animate(t){requestAnimationFrame(animate);board.rotation.y=Math.sin(t*.00018)*.035;renderer.render(scene,camera)}animate(0);
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+})();
+</script></body></html>
